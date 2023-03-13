@@ -1,8 +1,9 @@
 import React from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Space } from 'antd';
+import { Button, Checkbox, Form, Image, Input, Row, Space } from 'antd';
 import style from './style';
 import { useFormik } from 'formik';
+import assets from '../../../assets/assets';
 
 const LoginPage: React.FC = () => {
   const onFinish = (values: any) => {
@@ -19,7 +20,19 @@ const LoginPage: React.FC = () => {
 
   return (
     <Space className={style.centeredSpace}>
-      <Form
+      
+      
+      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+      <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
+      <Image
+        height={200} src={assets.images.lambang_polri}
+       />
+       <Image
+         height={200} src={assets.images.lambang_korlantas}
+       />
+      </Space>
+      
+       <Form
         name="normal_login"
         className="login-form"
         initialValues={{ remember: true }}
@@ -62,6 +75,7 @@ const LoginPage: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
+      </Space> 
     </Space>
   );
 };
