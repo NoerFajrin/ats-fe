@@ -1,15 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Image, Input, Row, Space } from 'antd';
+import { Alert, Button, Checkbox, Form, Image, Input, Row, Space } from 'antd';
 import style from './style';
 import { useFormik } from 'formik';
 import assets from '../../../assets/assets';
 import LoginSchema from '../../../res/schema/Auth/Login/Login.schema';
+import Login from '../../../res/type/Login.type';
+import AuthService from '../../../services/AuthServices';
+import { AxiosError } from 'axios';
+import { useAppDispatch } from '../../../redux/Hook';
+import authSlice from '../../../redux/Slice/AuthSlice';
 
 const LoginPage: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
-  };
+  const {setAuth} = authSlice.actions
+  const dispatch = useAppDispatch()
+  const [httpError, setHttpError] = useState({
+    hasError: false,
+    error: ''
+  })
+
+  const onSubmit = async (values: Login) => {
+    try {
+      const res = await AuthService.Login(values)
+      setHttpError({hasError:false,error:''})
+      const resData = res.data.data
+      const authState = {
+        accessToken: resData.accessToken,
+        user: resData.userInfo,
+        isLoggedIn: true
+      }
+      dispatch(setAuth(authState))
+      
+
+    } catch (error: AxiosError | any) {
+      console.error(error);
+      setHttpError({ hasError: true, error: error.response?.data?.error || ''})
+    }
+  }
 
   const formik = useFormik({
     validationSchema: LoginSchema,
@@ -17,14 +44,13 @@ const LoginPage: React.FC = () => {
       username: '',
       password: ''
     },
-    onSubmit: (values => console.log(values))
+    onSubmit
   })
 
   return (
     <Space className={style.centeredSpace}>
-
-
-      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+      <Space direction="vertical" size="middle">
+        {httpError.hasError && <Alert type='error' message={httpError.error} showIcon/>}
         <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
           <img
             height={200} src={assets.images.lambang_polri}
