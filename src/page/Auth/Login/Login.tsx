@@ -4,6 +4,7 @@ import { Button, Checkbox, Form, Image, Input, Row, Space } from 'antd';
 import style from './style';
 import { useFormik } from 'formik';
 import assets from '../../../assets/assets';
+import LoginSchema from '../../../res/schema/Auth/Login/Login.schema';
 
 const LoginPage: React.FC = () => {
   const onFinish = (values: any) => {
@@ -11,6 +12,7 @@ const LoginPage: React.FC = () => {
   };
 
   const formik = useFormik({
+    validationSchema: LoginSchema,
     initialValues: {
       username: '',
       password: ''
@@ -20,62 +22,27 @@ const LoginPage: React.FC = () => {
 
   return (
     <Space className={style.centeredSpace}>
-      
-      
+
+
       <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-      <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
-      <Image
-        height={200} src={assets.images.lambang_polri}
-       />
-       <Image
-         height={200} src={assets.images.lambang_korlantas}
-       />
-      </Space>
-      
-       <Form
-        name="normal_login"
-        className="login-form"
-        initialValues={{ remember: true }}
-        onFinish={formik.handleSubmit}
-        // onFieldsChange={(val) => {
-        //   const formattedVal = val.map(item => ({ [item.name[0]]: item.value }))
-        //   console.log(formattedVal)
-
-        // }}
-      >
-        <Form.Item
-          name="username"
-          rules={[{ required: true, message: 'Please input your Username!' }]}
-        >
-          <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username"/>
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: 'Please input your Password!' }]}
-        >
-          <Input
-            prefix={<LockOutlined className="site-form-item-icon" />}
-            type="password"
-            placeholder="Password"
+        <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
+          <img
+            height={200} src={assets.images.lambang_polri}
           />
-        </Form.Item>
-        <Form.Item>
-          <Form.Item name="remember" valuePropName="checked" noStyle>
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
+          <img
+            height={200} src={assets.images.lambang_korlantas}
+          />
+        </Space>
 
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
-        </Form.Item>
+        <form onSubmit={formik.handleSubmit}>
+          <Space style={{ width: '100%' }} size={'middle'} direction={'vertical'}>
+            <Input prefix={<UserOutlined />} value={formik.values.username} onChange={formik.handleChange('username')} placeholder={'username'} status={formik.errors.username && formik.errors.username !== '' ? 'error' : ''} />
+            <Input.Password prefix={<LockOutlined />} value={formik.values.password} onChange={formik.handleChange('password')} placeholder={'password'} status={formik.errors.password && formik.errors.password !== '' ? 'error' : ''} />
+            <Button type='primary' block htmlType='submit'>SIGN IN</Button>
+          </Space>
+        </form>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            Log in
-          </Button>
-        </Form.Item>
-      </Form>
-      </Space> 
+      </Space>
     </Space>
   );
 };
