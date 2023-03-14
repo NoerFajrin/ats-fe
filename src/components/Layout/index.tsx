@@ -1,10 +1,11 @@
-import React from 'react';
-import { DashboardOutlined, FormOutlined, LaptopOutlined, NotificationOutlined,MailOutlined, UserOutlined } from '@ant-design/icons';
-import { Image, MenuProps, Space, Typography } from 'antd';
+import React, { useState } from 'react';
+import { DashboardOutlined, FormOutlined, MenuUnfoldOutlined, MenuFoldOutlined,MailOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Image, MenuProps, Space, Typography } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import assets from '../../assets/assets';
-import { useAppSelector } from '../../redux/Hook';
+import { useAppDispatch, useAppSelector } from '../../redux/Hook';
+import { resetAuth } from '../../redux/Slice/AuthSlice';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -31,15 +32,35 @@ const items2 :MenuProps['items'] = [
   },
 ]
 const AdminLayout: React.FC = () => {
+  const { user, isLoggedIn } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch()
+
+  const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
   const navigate = useNavigate()
 
-  const user = useAppSelector(state => state.auth)
-  if(!user.isLoggedIn){
+  const userFullName = user?.fullname;
+
+  if(!isLoggedIn){
     navigate('/login')
   }
+
+  const handleLogout = () => {
+    dispatch(resetAuth());
+  };
+  const items: MenuProps["items"] = [
+    {
+      key: "name",
+      label: userFullName,
+      disabled: true,
+    },
+    {
+      key: "1",
+      label: <a onClick={handleLogout}>Logout</a>,
+    },
+  ];
   
 
   return (
@@ -64,7 +85,22 @@ const AdminLayout: React.FC = () => {
       <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']} items={items2} />
     </Sider>
     <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      <Header style={{ padding: 0, background: colorBgContainer }} />
+      <Header style={{ padding: 0, background: colorBgContainer }}>
+      <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              height:'100%',
+              paddingRight:30
+            }}
+          >
+            <Dropdown menu={{ items }}>
+              <Avatar size={"large"} />
+            </Dropdown>
+          </div>
+      </Header>
       <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
         <div style={{ padding: 24, textAlign: 'center', background: colorBgContainer }}>
           <p>long content</p>
