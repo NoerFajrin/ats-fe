@@ -10,8 +10,10 @@ import AuthService from '../../../services/AuthServices';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from '../../../redux/Hook';
 import authSlice from '../../../redux/Slice/AuthSlice';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
   const {setAuth} = authSlice.actions
   const dispatch = useAppDispatch()
   const [httpError, setHttpError] = useState({
@@ -30,7 +32,7 @@ const LoginPage: React.FC = () => {
         isLoggedIn: true
       }
       dispatch(setAuth(authState))
-      
+      navigate('/home')
 
     } catch (error: AxiosError | any) {
       console.error(error);

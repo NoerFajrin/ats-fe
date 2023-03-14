@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
-import { persistor, store } from './redux/Slice'
+import { persistor, store } from './redux/Store'
 import AppRoute from './router/AppRouter'
 
 

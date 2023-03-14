@@ -2,8 +2,9 @@ import React from 'react';
 import { DashboardOutlined, FormOutlined, LaptopOutlined, NotificationOutlined,MailOutlined, UserOutlined } from '@ant-design/icons';
 import { Image, MenuProps, Space, Typography } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import assets from '../../assets/assets';
+import { useAppSelector } from '../../redux/Hook';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -33,6 +34,13 @@ const AdminLayout: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const navigate = useNavigate()
+
+  const user = useAppSelector(state => state.auth)
+  if(!user.isLoggedIn){
+    navigate('/login')
+  }
+  
 
   return (
     <Layout hasSider>
