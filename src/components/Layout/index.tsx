@@ -54,11 +54,11 @@ const AdminLayout: React.FC = () => {
         bottom: 0,
       }}
     >
-      <Space direction="horizontal" size="middle" style={{ display: 'flex', paddingLeft:2,paddingTop:4}}>
+      <Space direction="horizontal" size="middle" style={{ display: 'flex', paddingLeft:20,paddingTop:10, justifyContent:'flex-start', alignItems:'center'}}>
        <img
          height={45} src={assets.images.lambang_korlantas}
        />
-       <Typography.Text style={{color:'#f6ffed'}}>ATS</Typography.Text>
+       <Typography.Title level={3} style={{color:'#f6ffed', paddingTop:12}}>ATS</Typography.Title>
       </Space>
       {/* <div style={{ height: 32, margin: 16, }} /> */}
       <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']} items={items2} />
