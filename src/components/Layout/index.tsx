@@ -43,9 +43,9 @@ const AdminLayout: React.FC = () => {
 
   const userFullName = user?.fullname;
 
-  if(!isLoggedIn){
-    navigate('/login')
-  }
+  // if(!isLoggedIn){
+  //   navigate('/login')
+  // }
 
   const handleLogout = () => {
     dispatch(resetAuth());
