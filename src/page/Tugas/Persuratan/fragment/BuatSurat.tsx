@@ -85,52 +85,52 @@ function BuatSurat() {
           <BasicDatePicker label='Waktu & Tanggal Pelaksanaan' onChange={() => null} />
         </Col>
       </Row>
-      </form>
       {/* <Space style={{width:"100%"}}> 
         <Form
         labelCol={{ span: 24 }}
         wrapperCol={{ span: 24 }}
-            layout="vertical"
-            initialValues={{ size: componentSize }}
-            onValuesChange={onFormLayoutChange}
-            size={componentSize as SizeType}
-            style={{ maxWidth: 600 }}
-          >
-           <Form.Item label="Upload Surat Fisik">
-           <Upload {...props}>
-            <Button icon={<UploadOutlined />}>Upload</Button>
-          </Upload>
-            </Form.Item> 
-          <Form.Item label="Jenis Surat">
-            <Select>
-              <Select.Option value="d">Surat Tugas</Select.Option>
-              <Select.Option value="demo">Surat Perintah</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item label="Nomor Surat">
-            <Input />
-          </Form.Item>
-          <Form.Item label="Tanggal Surat">
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="Sumber Surat">
-            <Select>
-              <Select.Option value="dq">Ka. Korlantas</Select.Option>
-              <Select.Option value="dw">Ka. POLRI</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item label="Nama Kegiatan">
-            <Input />
-          </Form.Item>
-          <Form.Item label="Waktu Pelaksanaan">
-            <RangePicker showTime />
-          </Form.Item>         
+        layout="vertical"
+        initialValues={{ size: componentSize }}
+        onValuesChange={onFormLayoutChange}
+        size={componentSize as SizeType}
+        style={{ maxWidth: 600 }}
+        >
+        <Form.Item label="Upload Surat Fisik">
+        <Upload {...props}>
+        <Button icon={<UploadOutlined />}>Upload</Button>
+        </Upload>
+        </Form.Item> 
+        <Form.Item label="Jenis Surat">
+        <Select>
+        <Select.Option value="d">Surat Tugas</Select.Option>
+        <Select.Option value="demo">Surat Perintah</Select.Option>
+        </Select>
+        </Form.Item>
+        <Form.Item label="Nomor Surat">
+        <Input />
+        </Form.Item>
+        <Form.Item label="Tanggal Surat">
+        <DatePicker />
+        </Form.Item>
+        <Form.Item label="Sumber Surat">
+        <Select>
+        <Select.Option value="dq">Ka. Korlantas</Select.Option>
+        <Select.Option value="dw">Ka. POLRI</Select.Option>
+        </Select>
+        </Form.Item>
+        <Form.Item label="Nama Kegiatan">
+        <Input />
+        </Form.Item>
+        <Form.Item label="Waktu Pelaksanaan">
+        <RangePicker showTime />
+        </Form.Item>         
         </Form>
-    </Space>  */}
+      </Space>  */}
       <Space>
         <Tabs defaultActiveKey="1" style={{ paddingLeft: 15 }} items={items} onChange={onChange} />
       </Space>
-      <Button style={{ backgroundColor: `#000000`, color: '#fff' }} >Simpan Surat</Button>
+      <Button style={{ backgroundColor: `#000000`, color: '#fff' }} htmlType="submit">Simpan Surat</Button>
+      </form>
     </Space>
   )
 }
