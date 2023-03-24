@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
         isLoggedIn: true
       }
       dispatch(setAuth(authState))
-      navigate('/home')
+      navigate('/penugasan')
 
     } catch (error: AxiosError | any) {
       console.error(error);
