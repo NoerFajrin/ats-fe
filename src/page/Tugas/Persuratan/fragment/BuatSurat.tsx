@@ -44,17 +44,18 @@ const JENIS_SURAT = [
   { label: 'SURAT TUGAS', value: 'SURAT_TUGAS' },
   { label: 'SURAT PERINTAH', value: 'SURAT_PERINTAH' },
 ]
-const formik = useFormik({
-  initialValues: {
-    jenis_surat: '',
-    nomor_surat: '',
-    tanggal_surat: '',
-    nama_kegiatan: '',
-  },
-  onSubmit: (values) => console.log(values, 'submit values')
-})
+
 function BuatSurat() {
   const [componentSize, setComponentSize] = useState<SizeType | 'default'>('default');
+  const formik = useFormik({
+    initialValues: {
+      jenis_surat: '',
+      nomor_surat: '',
+      tanggal_surat: '',
+      nama_kegiatan: '',
+    },
+    onSubmit: (values) => console.log(values, 'submit values')
+  })
 
   const onFormLayoutChange = ({ size }: { size: SizeType }) => {
     setComponentSize(size);
