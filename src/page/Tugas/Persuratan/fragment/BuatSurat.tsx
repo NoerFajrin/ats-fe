@@ -5,6 +5,7 @@ import { Option } from 'antd/es/mentions';
 import { SingleSelect, TextInput } from '../../../../components';
 import BasicDatePicker from '../../../../components/Input/DatePicker/DatePicker';
 import { useFormik } from 'formik';
+import TextAreaHere from '../../../../components/Input/TextAreaHere/TextInput';
 
 const onChange = (key: string) => {
   console.log(key);
@@ -53,6 +54,7 @@ function BuatSurat() {
       nomor_surat: '',
       tanggal_surat: '',
       nama_kegiatan: '',
+      end_date:'',
     },
     onSubmit: (values) => console.log(values, 'submit values')
   })
@@ -79,10 +81,15 @@ function BuatSurat() {
           <SingleSelect label='Sumber Surat' options={JENIS_SURAT} onChange={() => null} />
         </Col>
         <Col md={6}>
-          <TextInput label='Nama Kegiatan' value='json' onChange={() => null} />
+          <TextInput label='Nama Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nomor_surat} />
         </Col>
         <Col md={6}>
-          <BasicDatePicker label='Waktu & Tanggal Pelaksanaan' onChange={() => null} />
+          <BasicDatePicker label='Waktu & Tanggal Pelaksanaan' onChange={(value, stringValue) => formik.handleChange('end_date')(stringValue)} errorText={formik.errors.end_date} />
+        </Col>
+      </Row>
+      <Row>
+      <Col md={6}>
+          <TextAreaHere label='Detail Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nomor_surat} />
         </Col>
       </Row>
       {/* <Space style={{width:"100%"}}> 
@@ -126,9 +133,9 @@ function BuatSurat() {
         </Form.Item>         
         </Form>
       </Space>  */}
-      <Space>
+      {/* <Space>
         <Tabs defaultActiveKey="1" style={{ paddingLeft: 15 }} items={items} onChange={onChange} />
-      </Space>
+      </Space> */}
       <Button style={{ backgroundColor: `#000000`, color: '#fff' }} htmlType="submit">Simpan Surat</Button>
       </form>
     </Space>
