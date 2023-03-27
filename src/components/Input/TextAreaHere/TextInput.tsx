@@ -22,7 +22,7 @@ function TextAreaHere({
   return (
     <div className={style.container}>
       <Typography.Text strong>{label}</Typography.Text>
-      <TextArea rows={4} value={value} placeholder={placeholder} />
+      <TextArea rows={4} value={value} placeholder={placeholder} onChange={onChange} />
       {errorText && errorText !== '' && <Typography.Text type={'danger'} style={{ fontSize: 12, padding: 0 }}>{errorText}</Typography.Text>}
     </div>
   );

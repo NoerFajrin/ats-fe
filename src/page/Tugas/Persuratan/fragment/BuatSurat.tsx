@@ -1,4 +1,4 @@
-import { Button, Cascader, Col, DatePicker, Form, Input, InputNumber, Radio, Row, Select, Space, Switch, Tabs, TabsProps, TreeSelect, Typography, Upload, UploadProps } from 'antd';
+import { Button, Cascader, Col, DatePicker, Form, Input, InputNumber, notification, Popconfirm, Radio, Row, Select, Space, Switch, Tabs, TabsProps, TreeSelect, Typography, Upload, UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import React, { useState } from 'react'
 import { Option } from 'antd/es/mentions';
@@ -6,6 +6,10 @@ import { SingleSelect, TextInput } from '../../../../components';
 import BasicDatePicker from '../../../../components/Input/DatePicker/DatePicker';
 import { useFormik } from 'formik';
 import TextAreaHere from '../../../../components/Input/TextAreaHere/TextInput';
+import SuratSchema from '../../../../res/schema/Surat/Surat.schema';
+import SuratServices from '../../../../services/SuratServices';
+import { NotificationPlacement } from 'antd/es/notification/interface';
+import { useNavigate } from 'react-router-dom';
 
 const onChange = (key: string) => {
   console.log(key);
@@ -23,20 +27,6 @@ const items: TabsProps['items'] = [
   }
 ];
 
-const props: UploadProps = {
-  action: '//jsonplaceholder.typicode.com/posts/',
-  listType: 'picture',
-  previewFile(file) {
-    console.log('Your upload file:', file);
-    // Your process logic. Here we just mock to the same file
-    return fetch('https://next.json-generator.com/api/json/get/4ytyBoLK8', {
-      method: 'POST',
-      body: file,
-    })
-      .then((res) => res.json())
-      .then(({ thumbnail }) => thumbnail);
-  },
-};
 
 type SizeType = Parameters<typeof Form>[0]['size'];
 const { RangePicker } = DatePicker;
@@ -46,17 +36,50 @@ const JENIS_SURAT = [
   { label: 'SURAT PERINTAH', value: 'SURAT_PERINTAH' },
 ]
 
+
 function BuatSurat() {
   const [componentSize, setComponentSize] = useState<SizeType | 'default'>('default');
+  const [api, contextHolder] = notification.useNotification();
+  const [busy, setBusy] = useState<boolean>(false)
+  const navigate = useNavigate()
+
+  const openNotification = (placement: NotificationPlacement) => {
+    api.info({
+      message: `Surat berhasil dibuat`,
+      description: 'berhasil menambahkan surat baru',
+      placement,
+    });
+  };
+  const handleSubmit = async (payload: any) => {
+    setBusy(true)
+    try {
+      console.log(payload);
+      const formData = new FormData()
+      for (const [key, value] of Object.entries(payload)) {
+        formData.set(key, value)
+      }
+      const res = await SuratServices.CreateSurat(formData)
+      openNotification('topRight')
+      setTimeout(()=> navigate('/penugasan'), 3000)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
   const formik = useFormik({
     initialValues: {
       jenis_surat: '',
       nomor_surat: '',
       tanggal_surat: '',
+      sumber_surat: '',
       nama_kegiatan: '',
-      end_date:'',
+      start_date: '',
+      end_date: '',
+      file: '',
+      detail: '',
     },
-    onSubmit: (values) => console.log(values, 'submit values')
+    validationSchema: SuratSchema,
+    onSubmit: handleSubmit
   })
 
   const onFormLayoutChange = ({ size }: { size: SizeType }) => {
@@ -64,79 +87,53 @@ function BuatSurat() {
   };
   return (
     <Space direction="vertical" size={'large'} style={{ width: "100%" }}>
+      {contextHolder}
       <form onSubmit={formik.handleSubmit}>
-      <Row>
-        <Col md={6}>
-          <SingleSelect label='Jenis Surat' options={JENIS_SURAT} onChange={(value) => formik.handleChange('jenis_surat')(value)} errorText={formik.errors.jenis_surat}/>
-        </Col>
-        <Col md={6}>
-          <TextInput label='Nomor Surat' value={formik.values.nomor_surat} onChange={formik.handleChange('nomor_surat')} errorText={formik.errors.nomor_surat}/>
-        </Col>
-        <Col md={6}>
-          <BasicDatePicker label='Tanggal Surat' onChange={(value, stringValue) => formik.handleChange('tanggal_surat')(stringValue)} errorText={formik.errors.tanggal_surat}/>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={6}>
-          <SingleSelect label='Sumber Surat' options={JENIS_SURAT} onChange={() => null} />
-        </Col>
-        <Col md={6}>
-          <TextInput label='Nama Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nomor_surat} />
-        </Col>
-        <Col md={6}>
-          <BasicDatePicker label='Waktu & Tanggal Pelaksanaan' onChange={(value, stringValue) => formik.handleChange('end_date')(stringValue)} errorText={formik.errors.end_date} />
-        </Col>
-      </Row>
-      <Row>
-      <Col md={6}>
-          <TextAreaHere label='Detail Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nomor_surat} />
-        </Col>
-      </Row>
-      {/* <Space style={{width:"100%"}}> 
-        <Form
-        labelCol={{ span: 24 }}
-        wrapperCol={{ span: 24 }}
-        layout="vertical"
-        initialValues={{ size: componentSize }}
-        onValuesChange={onFormLayoutChange}
-        size={componentSize as SizeType}
-        style={{ maxWidth: 600 }}
-        >
-        <Form.Item label="Upload Surat Fisik">
-        <Upload {...props}>
-        <Button icon={<UploadOutlined />}>Upload</Button>
-        </Upload>
-        </Form.Item> 
-        <Form.Item label="Jenis Surat">
-        <Select>
-        <Select.Option value="d">Surat Tugas</Select.Option>
-        <Select.Option value="demo">Surat Perintah</Select.Option>
-        </Select>
-        </Form.Item>
-        <Form.Item label="Nomor Surat">
-        <Input />
-        </Form.Item>
-        <Form.Item label="Tanggal Surat">
-        <DatePicker />
-        </Form.Item>
-        <Form.Item label="Sumber Surat">
-        <Select>
-        <Select.Option value="dq">Ka. Korlantas</Select.Option>
-        <Select.Option value="dw">Ka. POLRI</Select.Option>
-        </Select>
-        </Form.Item>
-        <Form.Item label="Nama Kegiatan">
-        <Input />
-        </Form.Item>
-        <Form.Item label="Waktu Pelaksanaan">
-        <RangePicker showTime />
-        </Form.Item>         
-        </Form>
-      </Space>  */}
-      {/* <Space>
-        <Tabs defaultActiveKey="1" style={{ paddingLeft: 15 }} items={items} onChange={onChange} />
-      </Space> */}
-      <Button style={{ backgroundColor: `#000000`, color: '#fff' }} htmlType="submit">Simpan Surat</Button>
+        <Space direction="vertical" size={'small'} style={{ width: "100%" }}>
+          <Row>
+            <Space direction='vertical' size={'small'}>
+              <Typography.Paragraph strong style={{ margin: 0 }}>Surat tugas fisik (PDF)</Typography.Paragraph>
+              <input type={'file'} name={'file'} accept="application/pdf" onChange={(e) => {
+                formik.setFieldValue('file', e.currentTarget.files[0])
+              }} />
+              <Typography style={{ color: 'red', fontSize: 11 }}>{formik.errors.file}</Typography>
+            </Space>
+          </Row>
+
+          <Row gutter={36}>
+            <Col span={6}>
+              <SingleSelect label='Jenis Surat' options={JENIS_SURAT} onChange={(value) => formik.handleChange('jenis_surat')(value)} errorText={formik.errors.jenis_surat} />
+            </Col>
+            <Col span={6}>
+              <TextInput label='Nomor Surat' value={formik.values.nomor_surat} onChange={formik.handleChange('nomor_surat')} errorText={formik.errors.nomor_surat} />
+            </Col>
+            <Col span={6}>
+              <BasicDatePicker label='Tanggal Surat' onChange={(value, stringValue) => formik.handleChange('tanggal_surat')(stringValue)} errorText={formik.errors.tanggal_surat} />
+            </Col>
+          </Row>
+          <Row gutter={36}>
+            <Col span={6}>
+              <SingleSelect label='Sumber Surat' options={JENIS_SURAT} onChange={(value) => formik.handleChange('sumber_surat')(value)} errorText={formik.errors.sumber_surat} />
+            </Col>
+            <Col span={6}>
+              <TextInput label='Nama Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nama_kegiatan} />
+            </Col>
+            <Col span={6}>
+              <BasicDatePicker label='Awal kegiatan' onChange={(value, stringValue) => formik.handleChange('start_date')(stringValue)} errorText={formik.errors.start_date} showTime />
+            </Col>
+            <Col span={6}>
+              <BasicDatePicker label='Akhir kegiatan' onChange={(value, stringValue) => formik.handleChange('end_date')(stringValue)} errorText={formik.errors.end_date} showTime />
+            </Col>
+          </Row>
+          <Row gutter={36}>
+            <Col span={6}>
+              <TextAreaHere label='Detail Kegiatan' value={formik.values.detail} onChange={formik.handleChange('detail')} errorText={formik.errors.detail} />
+            </Col>
+          </Row>
+          <Popconfirm title={'Submit data'} description={'apakah data yang anda masukan sudah benar?'} onConfirm={formik.submitForm} okText={'Submit'} cancelText={'Batalkan'}>
+            <Button style={{ backgroundColor: `#000000`, color: '#fff' }} disabled={busy}>Simpan Surat</Button>
+          </Popconfirm>
+        </Space>
       </form>
     </Space>
   )
