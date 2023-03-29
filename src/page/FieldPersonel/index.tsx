@@ -40,8 +40,16 @@ function FieldPersonel() {
                     <Checkbox.Group options={options} defaultValue={['Pear']} onChange={onChange} />
           </Form.Item> 
         </Form>
-    </Space> 
-    <Card title="Pengawalan G20" bordered={false} style={{ width: "100%" }}>
+        <Space direction="horizontal">
+          <Card title="Temperature" bordered={false} style={{ width: 300 }}>
+            <p>Card content</p>
+          </Card>
+          <Card title="Temperature" bordered={false} style={{ width: 300 }}>
+            <p>Card content</p>
+          </Card>
+        </Space>
+       </Space> 
+      <Card title="Pengawalan G20" bordered={false} style={{ width: "100%" }}>
         <Space direction="horizontal" size={'large'}>
         <Col>
         <p>dari</p>
@@ -60,9 +68,9 @@ function FieldPersonel() {
         <p>22/03/2023</p>
         </Col>
         </Space>
-        
-    
-  </Card>
+      </Card>
+      
+  
 
     </Space> 
   )

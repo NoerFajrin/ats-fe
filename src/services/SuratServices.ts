@@ -7,7 +7,10 @@ const SuratServices = {
                 "Content-Type": "multipart/form-data"
             }
         })
-    }
+    },
+    ListSurat: async () => {
+        return await client.get('/surat')
+    },
 }
 
 export default SuratServices
