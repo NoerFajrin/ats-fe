@@ -11,6 +11,9 @@ const SuratServices = {
     ListSurat: async () => {
         return await client.get('/surat')
     },
+    SuratById : async (id_surat : number | string)=>{ 
+        return await client.get(`/surat/${id_surat}`)
+    },
 }
 
 export default SuratServices

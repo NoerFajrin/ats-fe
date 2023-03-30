@@ -1,16 +1,31 @@
-import { Button, Col, Modal, Row, Space, Table } from 'antd';
+import { Button, Col, Modal, Row, Space, Table, Typography } from 'antd';
 import { useFormik } from 'formik';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ColumnsType } from 'antd/es/table';
 import { TableRowSelection } from 'antd/es/table/interface';
 import TextInput from '../Input/TextInput/TextInput';
-import SingleSelect from '../Input/SelectInput/SelectInput';
+import SuratServices from '../../services/SuratServices';
+import moment from 'moment';
+
+interface SuratInterface {
+  id : number | string,
+  created_at : string,
+  detail : string,
+  end_date : string,
+  file_url : string,
+  jenis_surat : string,
+  nama_kegiatan : string,
+  nomor_surat : string,
+  start_date : string,
+  tanggal_surat : string,
+} 
 
 type ModalPenugsanProps = {
   open: boolean;
   onOk: () => void;
   onCancel: () => void;
   width : string;
+  idSuratTugas: number | string;
 };
 
 interface DataPersonel {
@@ -33,6 +48,7 @@ const columns_personel: ColumnsType<DataPersonel> = [
     dataIndex: 'nama_satuan',
   },
 ];
+
 const listpersonel: DataPersonel[] = [];
 for (let i = 0; i < 46; i++) {
   listpersonel.push({
@@ -42,21 +58,23 @@ for (let i = 0; i < 46; i++) {
     nama_satuan: `Red ${i}`,
   });
 }
-const PENANGGUNG_JAWAB = [
-  { label: 'Kepala Divis A', value: 'Kepala Divis A' },
-  { label: 'Kepala Divis B', value: 'Kepala Divis B' },
-]
+
 function ModalPenugasan({
   open,
   onOk,
   onCancel,
   width,
+  idSuratTugas,
 }: ModalPenugsanProps) {
+
+  const [suratSelect , setSuratSelect] = useState <SuratInterface | null>(null)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
+
   const rowSelection: TableRowSelection<DataPersonel> = {
     selectedRowKeys,
     onChange: onSelectChange,
@@ -94,7 +112,9 @@ function ModalPenugasan({
       },
     ],
   };
+
   const handleSubmit = async (payload: any) => { console.log("halo"); }
+
   const formik = useFormik({
     initialValues: {
       penanggung_jawab: '',
@@ -102,29 +122,53 @@ function ModalPenugasan({
     },
     onSubmit: handleSubmit
   })
+
+  const getSuratById = async ()=>{
+    try {
+      const res = await SuratServices.SuratById(idSuratTugas);
+      console.log(res.data.data);
+      setSuratSelect(res.data.data);
+    
+  } catch (error) {
+    console.error(error);
+  }}
+
+  useEffect(()=>{
+    getSuratById();
+  },
+  [idSuratTugas])
+  
   return (
-      <Modal title="Basic Modal" open={open} onOk={onOk} onCancel={onCancel} width={width}>
-        <Space>
+      <Modal title="Penugasan" open={open} onOk={onOk} onCancel={onCancel} width={width} >
+        <Space direction='vertical'>
+        <Row gutter={36}>
+          <Col span={5}> <Typography.Text> Nomor Surat</Typography.Text> </Col>
+          <Col> <Typography.Text>{suratSelect?.nomor_surat}</Typography.Text> </Col>
+        </Row>
+        <Row gutter={36}>
+          <Col span={5}> <Typography.Text> Perihal Surat</Typography.Text> </Col>
+          <Col> <Typography.Text> {suratSelect?.nama_kegiatan}</Typography.Text> </Col>
+        </Row>
+        <Row gutter={36}>
+          <Col span={5}> <Typography.Text> Waktu Pelaksanaan</Typography.Text> </Col>
+          <Col> <Typography.Text> {moment(suratSelect?.start_date).format('DD/MM/YYYY hh:mm')} s.d {moment(suratSelect?.end_date).format('DD/MM/YYYY hh:mm')}</Typography.Text>  </Col>
+        </Row>
+          
         <form>
         <Row gutter={36}>
-          <Col >
-            <SingleSelect label='Penanggung Jawab' options={PENANGGUNG_JAWAB} onChange={(value) => formik.handleChange('penanggung_jawab')(value)} errorText={formik.errors.penanggung_jawab} />
-          </Col>
           <Col>
             <TextInput label='Jumlah Personel' value={formik.values.jumlah_personel} onChange={formik.handleChange('jumlah_personel')} errorText={formik.errors.jumlah_personel} />
           </Col>
         </Row>
-        <Row gutter={36}>
+        <Row gutter={36} style={{marginTop:30}}>
           <Col>
-          <Table rowSelection={rowSelection} columns={columns_personel} dataSource={listpersonel} />
+          <Table  rowSelection={rowSelection} columns={columns_personel} dataSource={listpersonel} />
           </Col>
           <Col> List Personel yang terpilih</Col>
           <Col>  <Button type="primary">Kirim Penugasan ke Personel</Button></Col>
         </Row>
       </form>
-
         </Space>
-      
       </Modal>
   )
 }

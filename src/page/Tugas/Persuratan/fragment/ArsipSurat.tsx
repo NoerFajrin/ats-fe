@@ -19,10 +19,9 @@ interface SuratInterface {
   tanggal_surat : string,
 } 
 
-
 function ArsipSurat() {
   const [surat , setSurat] = useState <SuratInterface[]>([])
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [idSuratTugas, setIdSuratTugas]= useState<number | string>(0);
 
   const getSurat = async ()=>{
     try {
@@ -40,7 +39,8 @@ function ArsipSurat() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showModal = () => {
+  const showModal = (id: number | string) => {
+    setIdSuratTugas(id);
     setIsModalOpen(true);
   };
 
@@ -95,7 +95,7 @@ function ArsipSurat() {
           <Space direction='vertical'>
             <Button icon={<EditOutlined/>}>Edit</Button>
             <Button icon={<EyeOutlined />}>Lihat Surat Fisik</Button>
-            <Button type="primary" onClick={showModal}>
+            <Button type="primary" onClick={()=>showModal(data)}>
             Buat Penugasan
             </Button>
           </Space>
@@ -107,7 +107,7 @@ function ArsipSurat() {
   return (
     <div>
       <Table dataSource={surat} columns={columns} />;
-      <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'}/>
+      <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'}  idSuratTugas={idSuratTugas}/>
     </div>
   )
 }
