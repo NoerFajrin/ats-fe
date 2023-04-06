@@ -26,8 +26,8 @@ function ArsipSurat() {
   const getSurat = async ()=>{
     try {
       const res = await SuratServices.ListSurat();
-      console.log(res.data.data);
-      setSurat(res.data.data);
+      console.log(res);
+      setSurat(res.data.data.data);
     
   } catch (error) {
     console.error(error);
@@ -95,7 +95,7 @@ function ArsipSurat() {
           <Space direction='vertical'>
             <Button icon={<EditOutlined/>}>Edit</Button>
             <Button icon={<EyeOutlined />}>Lihat Surat Fisik</Button>
-            <Button type="primary" onClick={()=>showModal(data)}>
+           <Button type="primary" onClick={()=>showModal(data)}>
             Buat Penugasan
             </Button>
           </Space>
@@ -106,7 +106,7 @@ function ArsipSurat() {
 
   return (
     <div>
-      <Table dataSource={surat} columns={columns} />;
+      <Table dataSource={surat} columns={columns} />
       <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'}  idSuratTugas={idSuratTugas}/>
     </div>
   )

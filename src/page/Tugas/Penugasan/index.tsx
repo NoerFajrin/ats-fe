@@ -2,10 +2,12 @@ import { Space, Tabs, TabsProps, Typography } from 'antd'
 import React from 'react'
 import BuatPenugasan from './fragment/BuatPenugasan';
 import RiwayatPenugasan from './fragment/RiwayatPenugasan';
+
 const onChange = (key: string) => {
     console.log(key);
   };
-  const items: TabsProps['items'] = [
+
+const items: TabsProps['items'] = [
     {
       key: '1',
       label: `Buat Penugasan`,
@@ -16,9 +18,8 @@ const onChange = (key: string) => {
       label: `Riwayat Penugasan`,
       children: <RiwayatPenugasan/>,
     },
-  ];
+];
   
-
 function Penugasan() {
   return (
     <Space direction="vertical" style={{width: '100%'}}>

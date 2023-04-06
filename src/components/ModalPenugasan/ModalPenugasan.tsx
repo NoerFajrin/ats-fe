@@ -1,4 +1,4 @@
-import { Button, Col, Modal, Row, Space, Table, Typography } from 'antd';
+import { Button, Checkbox, Col, Modal, Popover, Row, Space, Statistic, Table, Typography } from 'antd';
 import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { ColumnsType } from 'antd/es/table';
@@ -6,25 +6,29 @@ import { TableRowSelection } from 'antd/es/table/interface';
 import TextInput from '../Input/TextInput/TextInput';
 import SuratServices from '../../services/SuratServices';
 import moment from 'moment';
+import { string } from 'yup';
+import PersonelServices from '../../services/PersonelServices';
+import { CheckboxChangeEvent } from 'antd/es/checkbox';
+import TextAreaHere from '../Input/TextAreaHere/TextInput';
 
 interface SuratInterface {
-  id : number | string,
-  created_at : string,
-  detail : string,
-  end_date : string,
-  file_url : string,
-  jenis_surat : string,
-  nama_kegiatan : string,
-  nomor_surat : string,
-  start_date : string,
-  tanggal_surat : string,
-} 
+  id: number | string,
+  created_at: string,
+  detail: string,
+  end_date: string,
+  file_url: string,
+  jenis_surat: string,
+  nama_kegiatan: string,
+  nomor_surat: string,
+  start_date: string,
+  tanggal_surat: string,
+}
 
 type ModalPenugsanProps = {
   open: boolean;
   onOk: () => void;
   onCancel: () => void;
-  width : string;
+  width: string;
   idSuratTugas: number | string;
 };
 
@@ -32,31 +36,6 @@ interface DataPersonel {
   key: React.Key;
   id: number | string;
   nama_personel: string;
-  nama_satuan: string;
-}
-const columns_personel: ColumnsType<DataPersonel> = [
-  {
-    title: 'ID Personel',
-    dataIndex: 'id',
-  },
-  {
-    title: 'Nama Personel',
-    dataIndex: 'nama_personel',
-  },
-  {
-    title: 'Nama_Satuan',
-    dataIndex: 'nama_satuan',
-  },
-];
-
-const listpersonel: DataPersonel[] = [];
-for (let i = 0; i < 46; i++) {
-  listpersonel.push({
-    key: i,
-    id: `${i}`,
-    nama_personel: 'Wayne Rooney 11',
-    nama_satuan: `Red ${i}`,
-  });
 }
 
 function ModalPenugasan({
@@ -65,111 +44,167 @@ function ModalPenugasan({
   onCancel,
   width,
   idSuratTugas,
+
 }: ModalPenugsanProps) {
 
-  const [suratSelect , setSuratSelect] = useState <SuratInterface | null>(null)
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedSurat, setselectedSurat] = useState<SuratInterface | null>(null);
+  const [selectedStartDate, setSelectedStartDate] = useState<string>('');
+  const [selectedEndtDate, setSelectedEndDate] = useState<string>('');
+  const [selectedPersonelList, setSelectedPersonelList] = useState<DataPersonel[]>([]);
+  const [listPersonel, setListPersonel] = useState<DataPersonel[]>([])
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection: TableRowSelection<DataPersonel> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-    selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE,
-      {
-        key: 'odd',
-        text: 'Select Odd Row',
-        onSelect: (changeableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return false;
-            }
-            return true;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-      {
-        key: 'even',
-        text: 'Select Even Row',
-        onSelect: (changeableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return true;
-            }
-            return false;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-    ],
-  };
 
   const handleSubmit = async (payload: any) => { console.log("halo"); }
+
+  const handleChecklistPersonel = (e: CheckboxChangeEvent) => {
+    const idPersonelSelected = e.target.value;
+    const selectedPersonel = listPersonel.find((personel: DataPersonel) => Number(personel.id) === Number(idPersonelSelected))
+    console.log(selectedPersonel, e.target.checked);
+    if (selectedPersonel !== undefined) {
+      // setSelectedPersonelList([...selectedPersonelList,selectedPersonel])
+      const updatedSelectedPersonelList = selectedPersonelList.map((personel: any) => {
+        if (Number(personel.id) === Number(idPersonelSelected)) {
+          return { ...personel, isChecked: e.target.checked }
+        }
+        return { ...personel }
+      })
+      setSelectedPersonelList(updatedSelectedPersonelList)
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
       penanggung_jawab: '',
       jumlah_personel: '',
+      catatan_penugasan: '',
     },
     onSubmit: handleSubmit
   })
 
-  const getSuratById = async ()=>{
+  const getSuratById = async () => {
     try {
       const res = await SuratServices.SuratById(idSuratTugas);
-      console.log(res.data.data);
-      setSuratSelect(res.data.data);
-    
-  } catch (error) {
-    console.error(error);
-  }}
+      let resStartDate = moment(res.data.data.start_date).format('YYYY-MM-DD hh:mm:ss');
+      let resEndDate = moment(res.data.data.end_date).format('YYYY-MM-DD hh:mm:ss');
+      console.log(resEndDate);
+      setSelectedStartDate(resStartDate);
+      setSelectedEndDate(resEndDate);
+      setselectedSurat(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-  useEffect(()=>{
+  const getAvailablePersonel = async () => {
+    try {
+      const res = await PersonelServices.AvailablePersonel(selectedStartDate, selectedEndtDate);
+      const rawData = res.data.data.data
+      setListPersonel(rawData);
+      const rawUncheckedPersonelList = rawData.map((personel: DataPersonel) => ({ ...personel, isChecked: false }))
+      setSelectedPersonelList(rawUncheckedPersonelList)
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleSendPenugasan = async () => { 
+    const selectedID = selectedPersonelList.filter((personel: any) => personel.isChecked).map((personel: any) => ({id : personel.id}))
+    const payload = {
+      id_surat : selectedSurat?.id,
+      nama_kegiatan : selectedSurat?.nama_kegiatan,
+      catatan_penugasan: formik.values.catatan_penugasan,
+      leader_id : selectedID[0],
+      list_personel: selectedID,
+    }
+    console.log(payload);
+  }
+
+  const columns_personel: ColumnsType<DataPersonel> = [
+    {
+      title: 'Nama Personel',
+      dataIndex: 'fullname',
+    },
+    {
+      title: 'Satuan',
+      dataIndex: 'satuan',
+    },
+    {
+      title: 'Pilih',
+      dataIndex: 'id',
+      render: (data: number | string) => {
+        return (
+          <Checkbox value={data} onChange={handleChecklistPersonel}></Checkbox>
+        );
+      }
+    },
+
+  ];
+  const columns_personel_selected = [
+    {
+      title: 'Nama Personel Terpilih',
+      dataIndex: 'fullname',
+    },
+    {
+      title: 'Satuan',
+      dataIndex: 'satuan',
+    },
+
+  ];
+  useEffect(() => {
     getSuratById();
+    getAvailablePersonel();
   },
-  [idSuratTugas])
-  
+    [idSuratTugas]),
+
+
+
+    useEffect(() => { console.log(selectedPersonelList) }, [selectedPersonelList]);
+
   return (
-      <Modal title="Penugasan" open={open} onOk={onOk} onCancel={onCancel} width={width} >
-        <Space direction='vertical'>
-        <Row gutter={36}>
-          <Col span={5}> <Typography.Text> Nomor Surat</Typography.Text> </Col>
-          <Col> <Typography.Text>{suratSelect?.nomor_surat}</Typography.Text> </Col>
+    <Modal title="" open={open} onOk={onOk} onCancel={onCancel} width={width} >
+      <Space direction='vertical'>
+        <Row gutter={16} style={{ marginTop: 30 }}>
+          <Col span={6}>
+            <Statistic title="Nomor Surat" value={selectedSurat?.nomor_surat} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="Perihal Surat" value={selectedSurat?.nama_kegiatan} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="Tanggal Mulai" value={moment(selectedSurat?.start_date).format('DD/MM/YYYY hh:mm')} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="Tanggal Selsai" value={moment(selectedSurat?.end_date).format('DD/MM/YYYY hh:mm')} />
+          </Col>
         </Row>
-        <Row gutter={36}>
-          <Col span={5}> <Typography.Text> Perihal Surat</Typography.Text> </Col>
-          <Col> <Typography.Text> {suratSelect?.nama_kegiatan}</Typography.Text> </Col>
-        </Row>
-        <Row gutter={36}>
-          <Col span={5}> <Typography.Text> Waktu Pelaksanaan</Typography.Text> </Col>
-          <Col> <Typography.Text> {moment(suratSelect?.start_date).format('DD/MM/YYYY hh:mm')} s.d {moment(suratSelect?.end_date).format('DD/MM/YYYY hh:mm')}</Typography.Text>  </Col>
-        </Row>
-          
+
         <form>
-        <Row gutter={36}>
-          <Col>
-            <TextInput label='Jumlah Personel' value={formik.values.jumlah_personel} onChange={formik.handleChange('jumlah_personel')} errorText={formik.errors.jumlah_personel} />
-          </Col>
-        </Row>
-        <Row gutter={36} style={{marginTop:30}}>
-          <Col>
-          <Table  rowSelection={rowSelection} columns={columns_personel} dataSource={listpersonel} />
-          </Col>
-          <Col> List Personel yang terpilih</Col>
-          <Col>  <Button type="primary">Kirim Penugasan ke Personel</Button></Col>
-        </Row>
-      </form>
-        </Space>
-      </Modal>
+          <Row gutter={36} style={{ marginTop: 30 }}>
+            <Col>
+              <TextInput label='Jumlah Personel' value={formik.values.jumlah_personel} onChange={formik.handleChange('jumlah_personel')} errorText={formik.errors.jumlah_personel} />
+            </Col>
+          </Row>
+          <Row gutter={36} style={{ marginTop: 30 }}>
+            <Col span={24}>
+              <TextAreaHere label='Catatan Penugasan' value={formik.values.catatan_penugasan} onChange={formik.handleChange('catatan_penugasan')} errorText={formik.errors.catatan_penugasan} />
+            </Col>
+          </Row>
+          <Row gutter={36} style={{ marginTop: 30 }}>
+            <Col span={12}>
+              <Table columns={columns_personel} dataSource={listPersonel} />
+            </Col>
+            <Col span={12}>
+              <Table pagination={false} dataSource={selectedPersonelList.filter((personel: any) => personel.isChecked === true)} columns={columns_personel_selected} />
+            </Col>
+            <Col>
+              <Popover placement="top" title={"Selamat...!!!"} content={"Pesan Berhasil di Kirim"} trigger="click">
+                <Button onClick={handleSendPenugasan} type="primary">Kirim Penugasan ke Personel</Button>
+              </Popover>
+            </Col>
+          </Row>
+        </form>
+      </Space>
+    </Modal>
   )
 }
 
