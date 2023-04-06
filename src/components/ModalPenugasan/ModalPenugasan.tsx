@@ -37,6 +37,7 @@ interface DataPersonel {
   key: React.Key;
   id: number | string;
   nama_personel: string;
+  isChecked?: boolean;
 }
 
 function ModalPenugasan({
@@ -114,7 +115,7 @@ function ModalPenugasan({
       id_surat: Number(selectedSurat?.id),
       nama_kegiatan: selectedSurat?.nama_kegiatan,
       catatan_penugasan: formik.values.catatan_penugasan,
-      leader_id: Number(selectedID[0]),
+      leader_id: Number(selectedID[0].id),
       list_personel: selectedID,
     }
     try {
@@ -139,9 +140,11 @@ function ModalPenugasan({
     {
       title: 'Pilih',
       dataIndex: 'id',
-      render: (data: number | string) => {
+      render: (data: number | string, row) => {
+        console.log(data, row);
+
         return (
-          <Checkbox value={data} onChange={handleChecklistPersonel}></Checkbox>
+          <Checkbox value={row.id} onChange={handleChecklistPersonel} disabled={selectedPersonelList.filter(p => p.isChecked).length >= Number(formik.values.jumlah_personel) && !row.isChecked} checked={row.isChecked}></Checkbox>
         );
       }
     },
@@ -189,7 +192,7 @@ function ModalPenugasan({
         <form>
           <Row gutter={36} style={{ marginTop: 30 }}>
             <Col>
-              <TextInput label='Jumlah Personel' value={formik.values.jumlah_personel} onChange={formik.handleChange('jumlah_personel')} errorText={formik.errors.jumlah_personel} />
+              <TextInput number label='Jumlah Personel' value={formik.values.jumlah_personel} onChange={formik.handleChange('jumlah_personel')} errorText={formik.errors.jumlah_personel} />
             </Col>
           </Row>
           <Row gutter={36} style={{ marginTop: 30 }}>
@@ -199,7 +202,7 @@ function ModalPenugasan({
           </Row>
           <Row gutter={36} style={{ marginTop: 30 }}>
             <Col span={12}>
-              <Table columns={columns_personel} dataSource={listPersonel} />
+              <Table columns={columns_personel} dataSource={selectedPersonelList} />
             </Col>
             <Col span={12}>
               <Table pagination={false} dataSource={selectedPersonelList.filter((personel: any) => personel.isChecked === true)} columns={columns_personel_selected} />

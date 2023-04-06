@@ -7,6 +7,7 @@ type BasicProps = {
   label: string;
   placeholder?: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  number?: boolean;
   errorText?: string;
 };
 
@@ -16,11 +17,12 @@ function TextInput({
   placeholder = label,
   onChange,
   errorText = '',
+  number = false
 }: BasicProps) {
   return (
     <div className={style.container}>
       <Typography.Text strong>{label}</Typography.Text>
-      <Input value={value} placeholder={placeholder} onChange={onChange} />
+      <Input value={value} placeholder={placeholder} onChange={onChange} inputMode={number? 'numeric' : 'text'}/>
       {errorText && errorText !== '' && <Typography.Text type={'danger'} style={{ fontSize: 12, padding: 0 }}>{errorText}</Typography.Text>}
     </div>
   );
