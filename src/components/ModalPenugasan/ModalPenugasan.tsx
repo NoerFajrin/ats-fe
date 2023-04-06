@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Modal, Popover, Row, Space, Statistic, Table, Typography } from 'antd';
+import { Button, Checkbox, Col, Modal, Popconfirm, Popover, Row, Space, Statistic, Table, Typography } from 'antd';
 import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { ColumnsType } from 'antd/es/table';
@@ -10,6 +10,7 @@ import { string } from 'yup';
 import PersonelServices from '../../services/PersonelServices';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import TextAreaHere from '../Input/TextAreaHere/TextInput';
+import PenugasanServices from '../../services/PenugasanServices';
 
 interface SuratInterface {
   id: number | string,
@@ -107,16 +108,23 @@ function ModalPenugasan({
     }
   }
 
-  const handleSendPenugasan = async () => { 
-    const selectedID = selectedPersonelList.filter((personel: any) => personel.isChecked).map((personel: any) => ({id : personel.id}))
+  const handleSendPenugasan = async () => {
+    const selectedID = selectedPersonelList.filter((personel: any) => personel.isChecked).map((personel: any) => ({ id: personel.id }))
     const payload = {
-      id_surat : selectedSurat?.id,
-      nama_kegiatan : selectedSurat?.nama_kegiatan,
+      id_surat: Number(selectedSurat?.id),
+      nama_kegiatan: selectedSurat?.nama_kegiatan,
       catatan_penugasan: formik.values.catatan_penugasan,
-      leader_id : selectedID[0],
+      leader_id: Number(selectedID[0]),
       list_personel: selectedID,
     }
-    console.log(payload);
+    try {
+      const res = await PenugasanServices.CreatePenugasan(payload)
+      console.log(res.data);
+      onCancel()
+    } catch (error) {
+      console.error(error);
+
+    }
   }
 
   const columns_personel: ColumnsType<DataPersonel> = [
@@ -197,9 +205,9 @@ function ModalPenugasan({
               <Table pagination={false} dataSource={selectedPersonelList.filter((personel: any) => personel.isChecked === true)} columns={columns_personel_selected} />
             </Col>
             <Col>
-              <Popover placement="top" title={"Selamat...!!!"} content={"Pesan Berhasil di Kirim"} trigger="click">
-                <Button onClick={handleSendPenugasan} type="primary">Kirim Penugasan ke Personel</Button>
-              </Popover>
+              <Popconfirm placement="top" title={"Apakah anda yakin akan mensubmit data?"} onConfirm={handleSendPenugasan}>
+                <Button type="primary">Kirim Penugasan ke Personel</Button>
+              </Popconfirm>
             </Col>
           </Row>
         </form>
