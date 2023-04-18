@@ -35,7 +35,10 @@ const JENIS_SURAT = [
   { label: 'SURAT TUGAS', value: 'SURAT_TUGAS' },
   { label: 'SURAT PERINTAH', value: 'SURAT_PERINTAH' },
 ]
-
+const SUMBER_SURAT = [
+  { label: 'Ka. Korlantas', value: 'ka_Korlantas' },
+  { label: 'Ka. Polri', value: 'Ka_Polri' },
+]
 
 function BuatSurat() {
   const [componentSize, setComponentSize] = useState<SizeType | 'default'>('default');
@@ -113,7 +116,7 @@ function BuatSurat() {
           </Row>
           <Row gutter={36}>
             <Col span={6}>
-              <SingleSelect label='Sumber Surat' options={JENIS_SURAT} onChange={(value) => formik.handleChange('sumber_surat')(value)} errorText={formik.errors.sumber_surat} />
+              <SingleSelect label='Sumber Surat' options={SUMBER_SURAT} onChange={(value) => formik.handleChange('sumber_surat')(value)} errorText={formik.errors.sumber_surat} />
             </Col>
             <Col span={6}>
               <TextInput label='Nama Kegiatan' value={formik.values.nama_kegiatan} onChange={formik.handleChange('nama_kegiatan')} errorText={formik.errors.nama_kegiatan} />

@@ -1,41 +1,49 @@
-import { Button, Col, FloatButton, Modal, Row, Space, Table } from 'antd';
+import { Button, Col, FloatButton, Modal, Popconfirm, Row, Select, Space, Table } from 'antd';
 import React, { useEffect, useState } from 'react'
 import SuratServices from '../../../../services/SuratServices'
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment'
-import { ModalPenugasan } from '../../../../components';
+import { ModalPenugasan, SingleSelect } from '../../../../components';
+import { useFormik } from 'formik';
+import ModalResult from '../../../../components/ModalResult/ModalResult';
 
 
 interface SuratInterface {
-  id : number | string,
-  created_at : string,
-  detail : string,
-  end_date : string,
-  file_url : string,
-  jenis_surat : string,
-  nama_kegiatan : string,
-  nomor_surat : string,
-  start_date : string,
-  tanggal_surat : string,
-} 
+  id: number | string,
+  created_at: string,
+  detail: string,
+  end_date: string,
+  file_url: string,
+  jenis_surat: string,
+  nama_kegiatan: string,
+  nomor_surat: string,
+  start_date: string,
+  tanggal_surat: string,
+}
 
 function ArsipSurat() {
-  const [surat , setSurat] = useState <SuratInterface[]>([])
-  const [idSuratTugas, setIdSuratTugas]= useState<number | string>(0);
+  const [surat, setSurat] = useState<SuratInterface[]>([])
+  const [idSuratTugas, setIdSuratTugas] = useState<number | string>(0);
 
-  const getSurat = async ()=>{
+  const JENIS_SURAT = [
+    { label: 'Sudah Memiliki Penugasan', value: 'sudah_penugasan' },
+    { label: 'Belum Memiliki Penugasan', value: 'belum_penugasan' },
+  ]
+
+  const getSurat = async () => {
     try {
       const res = await SuratServices.ListSurat();
       console.log(res);
       setSurat(res.data.data.data);
-    
-  } catch (error) {
-    console.error(error);
-  }}
 
-  useEffect(()=>{
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
     getSurat();
-  },[])
+  }, [])
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -51,7 +59,9 @@ function ArsipSurat() {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
- 
+  const handleChange = (value: { value: string; label: React.ReactNode }) => {
+    console.log(value); // { value: "lucy", key: "lucy", label: "Lucy (101)" }
+  }
   const columns = [
     {
       title: 'Nomor Surat',
@@ -72,32 +82,33 @@ function ArsipSurat() {
       title: 'Tanggal Surat',
       dataIndex: 'tanggal_surat',
       key: 'tanggal_surat',
-      render:(data : string)=>moment(data).format('DD/MM/YYYY'),
+      render: (data: string) => moment(data).format('DD/MM/YYYY'),
     },
     {
       title: 'Awal Kegiatan',
       dataIndex: 'start_date',
       key: 'start_date',
-      render:(data : string)=>moment(data).format('DD/MM/YYYY hh:mm'),
+      render: (data: string) => moment(data).format('DD/MM/YYYY hh:mm'),
     },
     {
       title: 'Akhir Kegiatan',
       dataIndex: 'end_date',
       key: 'end_date',
-      render:(data : string)=>moment(data).format('DD/MM/YYYY hh:mm')
+      render: (data: string) => moment(data).format('DD/MM/YYYY hh:mm')
     },
     {
       title: 'Aksi',
       dataIndex: 'id',
       key: 'action',
-      render:(data : number | string)=>{
-        return(
+      render: (data: number | string) => {
+        return (
           <Space direction='vertical'>
-            <Button icon={<EditOutlined/>}>Edit</Button>
+            <Button icon={<EditOutlined />}>Edit</Button>
             <Button icon={<EyeOutlined />}>Lihat Surat Fisik</Button>
-           <Button type="primary" onClick={()=>showModal(data)}>
-            Buat Penugasan
+              <Button onClick={() => showModal(data)} type="primary">
+              Buat Penugasan
             </Button>
+           
           </Space>
         );
       }
@@ -105,10 +116,15 @@ function ArsipSurat() {
   ]
 
   return (
-    <div>
+
+    <Space direction='vertical'>
+      <Row style={{width:'50%'}}>
+      <SingleSelect label='Jenis Surat' options={JENIS_SURAT} onChange={(value) => handleChange} errorText={""} />
+      </Row>
       <Table dataSource={surat} columns={columns} />
-      <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'}  idSuratTugas={idSuratTugas}/>
-    </div>
+      <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'} idSuratTugas={idSuratTugas} />
+
+    </Space>
   )
 }
 

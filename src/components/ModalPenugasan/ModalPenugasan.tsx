@@ -11,6 +11,7 @@ import PersonelServices from '../../services/PersonelServices';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import TextAreaHere from '../Input/TextAreaHere/TextInput';
 import PenugasanServices from '../../services/PenugasanServices';
+import ModalResult from '../ModalResult/ModalResult';
 
 interface SuratInterface {
   id: number | string,
@@ -23,6 +24,14 @@ interface SuratInterface {
   nomor_surat: string,
   start_date: string,
   tanggal_surat: string,
+  
+}
+interface ResultInterface{
+  open: boolean;
+  status: "success" | "info" | "error";
+  title: string;
+  subTitle: string;
+
 }
 
 type ModalPenugsanProps = {
@@ -50,10 +59,14 @@ function ModalPenugasan({
 }: ModalPenugsanProps) {
 
   const [selectedSurat, setselectedSurat] = useState<SuratInterface | null>(null);
-  const [selectedStartDate, setSelectedStartDate] = useState<string>('');
-  const [selectedEndtDate, setSelectedEndDate] = useState<string>('');
   const [selectedPersonelList, setSelectedPersonelList] = useState<DataPersonel[]>([]);
   const [listPersonel, setListPersonel] = useState<DataPersonel[]>([])
+  const [resultModalProperty, setResulmodalProperty] = useState<ResultInterface>({ 
+    open:false,
+    status:'success',
+    title:'Selamat',
+    subTitle:'ok'
+  });
 
 
   const handleSubmit = async (payload: any) => { console.log("halo"); }
@@ -88,18 +101,16 @@ function ModalPenugasan({
       const res = await SuratServices.SuratById(idSuratTugas);
       let resStartDate = moment(res.data.data.start_date).format('YYYY-MM-DD hh:mm:ss');
       let resEndDate = moment(res.data.data.end_date).format('YYYY-MM-DD hh:mm:ss');
-      console.log(resEndDate);
-      setSelectedStartDate(resStartDate);
-      setSelectedEndDate(resEndDate);
       setselectedSurat(res.data.data);
+      getAvailablePersonel(resStartDate,resEndDate);
     } catch (error) {
       console.error(error);
     }
   }
 
-  const getAvailablePersonel = async () => {
+  const getAvailablePersonel = async (startDate :string,endDate :string) => {
     try {
-      const res = await PersonelServices.AvailablePersonel(selectedStartDate, selectedEndtDate);
+      const res = await PersonelServices.AvailablePersonel(startDate, endDate);
       const rawData = res.data.data.data
       setListPersonel(rawData);
       const rawUncheckedPersonelList = rawData.map((personel: DataPersonel) => ({ ...personel, isChecked: false }))
@@ -120,11 +131,24 @@ function ModalPenugasan({
     }
     try {
       const res = await PenugasanServices.CreatePenugasan(payload)
+      const successMsg = res.data.data.message
+      setResulmodalProperty({open:true, status:"success", title:"Berhasil Membuat Penugasan", subTitle:successMsg})
       console.log(res.data);
-      onCancel()
     } catch (error) {
+      const errorMsg=error?.response?.data?.error?.response?.error || "";
+      setResulmodalProperty({open:true, status:"error", title:"Tidak Dapat Memproses Data", subTitle:errorMsg})
       console.error(error);
 
+    }
+  }
+  const handleOk = async ()=>{
+    const updateModal = new Promise(resolve => {
+      setResulmodalProperty({...resultModalProperty, open:false})
+      resolve(true)
+    })
+    await updateModal
+    if (resultModalProperty.status==='success'){
+       onCancel()
     }
   }
 
@@ -141,7 +165,7 @@ function ModalPenugasan({
       title: 'Pilih',
       dataIndex: 'id',
       render: (data: number | string, row) => {
-        console.log(data, row);
+        // console.log(data, row);
 
         return (
           <Checkbox value={row.id} onChange={handleChecklistPersonel} disabled={selectedPersonelList.filter(p => p.isChecked).length >= Number(formik.values.jumlah_personel) && !row.isChecked} checked={row.isChecked}></Checkbox>
@@ -163,16 +187,23 @@ function ModalPenugasan({
   ];
   useEffect(() => {
     getSuratById();
-    getAvailablePersonel();
+    console.log("aku terpanggil")
   },
     [idSuratTugas]),
-
-
 
     useEffect(() => { console.log(selectedPersonelList) }, [selectedPersonelList]);
 
   return (
-    <Modal title="" open={open} onOk={onOk} onCancel={onCancel} width={width} >
+    <Modal title="" open={open} onOk={onOk} onCancel={onCancel} width={width}
+    footer={[
+      <Button key="back"  onClick={onCancel}>
+        Cancel
+      </Button>,
+      <Popconfirm placement="top" title={"Apakah anda yakin akan mensubmit data?"} onConfirm={handleSendPenugasan}>
+      <Button type="primary">Kirim Penugasan ke Personel</Button>
+      </Popconfirm>,
+    ]}
+>
       <Space direction='vertical'>
         <Row gutter={16} style={{ marginTop: 30 }}>
           <Col span={6}>
@@ -182,10 +213,10 @@ function ModalPenugasan({
             <Statistic title="Perihal Surat" value={selectedSurat?.nama_kegiatan} />
           </Col>
           <Col span={6}>
-            <Statistic title="Tanggal Mulai" value={moment(selectedSurat?.start_date).format('DD/MM/YYYY hh:mm')} />
+            <Statistic title="Tanggal Mulai" value={moment(selectedSurat?.start_date).format('DD/MM/YY hh:mm')} />
           </Col>
           <Col span={6}>
-            <Statistic title="Tanggal Selsai" value={moment(selectedSurat?.end_date).format('DD/MM/YYYY hh:mm')} />
+            <Statistic title="Tanggal Selsai" value={moment(selectedSurat?.end_date).format('DD/MM/YY hh:mm')} />
           </Col>
         </Row>
 
@@ -208,13 +239,12 @@ function ModalPenugasan({
               <Table pagination={false} dataSource={selectedPersonelList.filter((personel: any) => personel.isChecked === true)} columns={columns_personel_selected} />
             </Col>
             <Col>
-              <Popconfirm placement="top" title={"Apakah anda yakin akan mensubmit data?"} onConfirm={handleSendPenugasan}>
-                <Button type="primary">Kirim Penugasan ke Personel</Button>
-              </Popconfirm>
+            
             </Col>
           </Row>
         </form>
       </Space>
+      <ModalResult onOk={handleOk} open={resultModalProperty.open} status={resultModalProperty.status} title={resultModalProperty.title} subTitle={resultModalProperty.subTitle} ></ModalResult>
     </Modal>
   )
 }
