@@ -6,10 +6,13 @@ import FieldPersonel from "../page/FieldPersonel";
 import Penugasan from "../page/Tugas/Penugasan";
 import Persuratan from "../page/Tugas/Persuratan";
 import TugasAktif from "../page/Tugas/TugasAktif";
+import { Dashboard } from "../page";
 
 
 const AppRoute = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/dashboard', element: <Dashboard /> },
+  // { path: '/', element: <AdminLayout />, children: [{ path: '/monitoring', element: <Dashboard />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/tugas-aktif', element: <TugasAktif />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/surat-tugas', element: <Persuratan />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/penugasan', element: <Penugasan />}]},
