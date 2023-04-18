@@ -204,7 +204,7 @@ function ModalPenugasan({
       </Popconfirm>,
     ]}
 >
-      <Space direction='vertical'>
+      <Space direction='vertical' style={{width:'100%'}}>
         <Row gutter={16} style={{ marginTop: 30 }}>
           <Col span={6}>
             <Statistic title="Nomor Surat" value={selectedSurat?.nomor_surat} />

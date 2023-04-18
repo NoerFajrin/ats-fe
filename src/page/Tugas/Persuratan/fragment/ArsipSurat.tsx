@@ -19,6 +19,7 @@ interface SuratInterface {
   nomor_surat: string,
   start_date: string,
   tanggal_surat: string,
+  penugasan: any | null
 }
 
 function ArsipSurat() {
@@ -100,15 +101,26 @@ function ArsipSurat() {
       title: 'Aksi',
       dataIndex: 'id',
       key: 'action',
-      render: (data: number | string) => {
+      render: (_, data: SuratInterface) => {
+        console.log(_);
+
         return (
           <Space direction='vertical'>
-            <Button icon={<EditOutlined />}>Edit</Button>
-            <Button icon={<EyeOutlined />}>Lihat Surat Fisik</Button>
-              <Button onClick={() => showModal(data)} type="primary">
-              Buat Penugasan
-            </Button>
-           
+            <Button block icon={<EditOutlined />}>Edit</Button>
+            <Button block icon={<EyeOutlined />} onClick={() => {
+              window.open(data.file_url, '_blank')
+            }}>Lihat Surat Fisik</Button>
+            {
+              data.penugasan ?
+                <Button block danger>
+                  Lihat Penugasan
+                </Button>
+                :
+                <Button block onClick={() => showModal(data.id)} type="primary">
+                  Buat Penugasan
+                </Button>
+            }
+
           </Space>
         );
       }
@@ -117,9 +129,9 @@ function ArsipSurat() {
 
   return (
 
-    <Space direction='vertical'>
-      <Row style={{width:'50%'}}>
-      <SingleSelect label='Jenis Surat' options={JENIS_SURAT} onChange={(value) => handleChange} errorText={""} />
+    <Space direction='vertical' style={{ width: '100%' }}>
+      <Row style={{ width: '50%' }}>
+        <SingleSelect label='Jenis Surat' options={JENIS_SURAT} onChange={(value) => handleChange} errorText={""} />
       </Row>
       <Table dataSource={surat} columns={columns} />
       <ModalPenugasan open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={'80%'} idSuratTugas={idSuratTugas} />
