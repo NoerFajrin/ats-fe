@@ -11,6 +11,11 @@ const { Header, Content, Footer, Sider } = Layout;
 
 const items2 :MenuProps['items'] = [
   {
+    key: `monitoring`,
+    icon: React.createElement(DashboardOutlined),
+    label: <Link to="/monitoring">Monitoring</Link> 
+  },
+  {
     key: `tugas_aktif`,
     icon: React.createElement(DashboardOutlined),
     label: <Link to="/tugas-aktif">Tugas Aktif</Link> 
