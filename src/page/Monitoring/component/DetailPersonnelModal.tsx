@@ -1,6 +1,7 @@
 import { Col, Descriptions, Divider, Modal, Row, Space, Statistic, Typography } from 'antd';
 import { LatLngExpression } from 'leaflet';
-import React from 'react'
+import React, { useEffect } from 'react'
+import MonitoringService from '../../../services/MonitoringService';
 
 interface PersonelInterface {
     user: string;
@@ -19,9 +20,24 @@ interface DetailPersonnelModalProps {
     onClose: () => void;
     personnel: PersonelInterface
 }
+
+const getAverageMonitoringValue = async () => {
+    try {
+        const res = await MonitoringService.getPenugasanAverageValue(1)
+        console.log(res.data.data);
+
+    } catch (error) {
+        console.error(error);
+
+    }
+}
+
 const DetailPersonnelModal = ({ open, onClose, personnel }: DetailPersonnelModalProps) => {
     const { user, sensor_id, sensor_parameter, nama_penugasan } = personnel
     const { body_temperature, spo2, heart_rate } = sensor_parameter
+    useEffect(() => {
+        getAverageMonitoringValue()
+    }, [])
     return (
         <Modal open={open} onCancel={onClose}>
             <Typography.Text strong>Informasi Penugasan</Typography.Text>
