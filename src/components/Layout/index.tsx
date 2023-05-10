@@ -13,13 +13,13 @@ const items2 :MenuProps['items'] = [
   {
     key: `monitoring`,
     icon: React.createElement(DashboardOutlined),
-    label: <Link to="/monitoring">Monitoring</Link> 
+    label: <Link to="http://192.168.18.33:5173/DASHBOARD/">Monitoring</Link> 
   },
-  {
-    key: `tugas_aktif`,
-    icon: React.createElement(DashboardOutlined),
-    label: <Link to="/tugas-aktif">Tugas Aktif</Link> 
-  },
+  // {
+  //   key: `tugas_aktif`,
+  //   icon: React.createElement(DashboardOutlined),
+  //   label: <Link to="/tugas-aktif">Tugas Aktif</Link> 
+  // },
   {
     key: `surat_tugas`,
     icon: React.createElement(MailOutlined),

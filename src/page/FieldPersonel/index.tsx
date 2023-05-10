@@ -1,77 +1,81 @@
-import { Button, Card, Checkbox, Col, Form, Input, Select, Space, Upload } from 'antd'
+import { Button, Card, Checkbox, Col, Form, Input, Select, Space, Table, Typography, Upload } from 'antd'
 import { CheckboxValueType } from 'antd/es/checkbox/Group';
-import React from 'react'
-const { Search } = Input;
-const onSearch = (value: string) => console.log(value);
-const onChange = (checkedValues: CheckboxValueType[]) => {
-    console.log('checked = ', checkedValues);
-  };
+import React, { useEffect, useState } from 'react'
+import PersonelServices from '../../services/PersonelServices';
 
-  const options = [
-    { label: 'Ahmad', value: '1' },
-    { label: 'Sobri', value: '2' },
-    { label: 'Joko', value: '3' },
-    { label: 'Joki', value: '4' },
-    { label: 'Zaki', value: '5' },
-    { label: 'Yuli', value: '6' },
-  ];
+interface ListPersonelInterface {
+  id: number | string,
+  fullname: string, 
+  role: number | string,
+}
 
 function FieldPersonel() {
+const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
+
+
+  const getPersonel = async () => {
+    try {
+      const res = await PersonelServices.ListPersonel();
+      console.log(res.data.data.data);
+      setPersonelist(res.data.data.data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    getPersonel();
+  }, [])
+
+  const columns = [
+   
+    {
+      title: 'Full Name',
+      dataIndex: 'fullname',
+      key: 'fullname',
+    },
+    {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (_, data: ListPersonelInterface) => {
+        let role="";
+        if (_=== 4){
+          role = " Field Personel"
+        }
+        else {
+          role = "admin"
+        }
+        //console.log(_);
+
+        return (
+          <Space direction='vertical'>
+            <p>{role}</p>
+          </Space>
+        );
+      }
+    },
+    {
+      title: 'Aksi',
+      dataIndex: 'id',
+      key: 'action',
+      render: (_, data: ListPersonelInterface) => {
+        //console.log(_);
+
+        return (
+          <Space direction='vertical'>
+            <Button type="primary">Detail</Button>
+          </Space>
+        );
+      }
+    },
     
+  ]
+
   return (
     <Space direction="vertical" style={{width:"100%"}}>
-       <Space style={{width:"100%"}}> 
-        <Form
-            labelCol={{ span: 24 }}
-            wrapperCol={{ span: 24 }}
-            layout="vertical"
-            style={{ maxWidth: 600 }}
-          >
-          <Form.Item label="Jenis Personel">
-            <Select>
-              <Select.Option value="d">Dalam Tugas</Select.Option>
-              <Select.Option value="demo">Tidak Dalam Tugas</Select.Option>
-            </Select>
-          </Form.Item> 
-          <Form.Item label="Pilih Personel">
-                <Search placeholder="input search text" onSearch={onSearch} style={{ width: "100%" }} />
-          </Form.Item> 
-          <Form.Item>
-                    <Checkbox.Group options={options} defaultValue={['Pear']} onChange={onChange} />
-          </Form.Item> 
-        </Form>
-        <Space direction="horizontal">
-          <Card title="Temperature" bordered={false} style={{ width: 300 }}>
-            <p>Card content</p>
-          </Card>
-          <Card title="Temperature" bordered={false} style={{ width: 300 }}>
-            <p>Card content</p>
-          </Card>
-        </Space>
-       </Space> 
-      <Card title="Pengawalan G20" bordered={false} style={{ width: "100%" }}>
-        <Space direction="horizontal" size={'large'}>
-        <Col>
-        <p>dari</p>
-        <p>Jakarta</p>
-        </Col>
-        <Col>
-        <p>Ke</p>
-        <p>Bali</p>
-        </Col>
-        <Col>
-        <p>Mulai</p>
-        <p>21/03/2023</p>
-        </Col>
-        <Col>
-        <p>Selsai</p>
-        <p>22/03/2023</p>
-        </Col>
-        </Space>
-      </Card>
-      
-  
-
+       <Typography.Title level={3} style={{paddingLeft:15}}>Field Personel</Typography.Title>
+        <Table dataSource={personelList} columns={columns} />
     </Space> 
   )
 }
