@@ -11,25 +11,7 @@ import SuratServices from '../../../../services/SuratServices';
 import { NotificationPlacement } from 'antd/es/notification/interface';
 import { useNavigate } from 'react-router-dom';
 
-const onChange = (key: string) => {
-  console.log(key);
-};
-const items: TabsProps['items'] = [
-  {
-    key: '1',
-    label: `Rute Perjalanan`,
-    children: "Journey Plan",
-  },
-  {
-    key: '2',
-    label: `Detail Surat`,
-    children: "Detail",
-  }
-];
-
-
 type SizeType = Parameters<typeof Form>[0]['size'];
-const { RangePicker } = DatePicker;
 
 const JENIS_SURAT = [
   { label: 'SURAT TUGAS', value: 'SURAT_TUGAS' },
@@ -39,6 +21,7 @@ const SUMBER_SURAT = [
   { label: 'Ka. Korlantas', value: 'ka_Korlantas' },
   { label: 'Ka. Polri', value: 'Ka_Polri' },
 ]
+
 
 function BuatSurat() {
   const [componentSize, setComponentSize] = useState<SizeType | 'default'>('default');
@@ -50,6 +33,13 @@ function BuatSurat() {
     api.info({
       message: `Surat berhasil dibuat`,
       description: 'berhasil menambahkan surat baru',
+      placement,
+    });
+  };
+  const errorNotification = (placement: NotificationPlacement) => {
+    api.info({
+      message: `Surat Tidak berhasil dibuat`,
+      description: 'KKK',
       placement,
     });
   };
@@ -67,6 +57,7 @@ function BuatSurat() {
 
     } catch (error) {
       console.error(error);
+      errorNotification('topRight')
     }
   }
   const formik = useFormik({
@@ -82,8 +73,11 @@ function BuatSurat() {
       detail: '',
     },
     validationSchema: SuratSchema,
-    onSubmit: handleSubmit
+    onSubmit: handleSubmit,
+    validateOnChange:false,
+    validateOnBlur:false,
   })
+  
 
   const onFormLayoutChange = ({ size }: { size: SizeType }) => {
     setComponentSize(size);
@@ -136,9 +130,11 @@ function BuatSurat() {
           <Popconfirm title={'Submit data'} description={'apakah data yang anda masukan sudah benar?'} onConfirm={formik.submitForm} okText={'Submit'} cancelText={'Batalkan'}>
             <Button style={{ backgroundColor: `#000000`, color: '#fff' }} disabled={busy}>Simpan Surat</Button>
           </Popconfirm>
+          
         </Space>
       </form>
     </Space>
+    
   )
 }
 
