@@ -31,31 +31,31 @@ interface statisticPersonelInterface {
   jumlah_penugasan_berlangsung: number | string;
   jumlah_personel_dalam_penugasan: number | string;
   jumlah_personel_offline: number | string;
-  surat_tujumlah_personel_onlinegas: number | string;
+  jumlah_personel_online: number | string;
 }
 
 const Statistic = () => {
-  const [detailPenugasan, setDetailPenugasan] = useState <detailPenugasanInterface| null>(null)
-  const [statisticPersonels, setStatisticPersonels] = useState<statisticPersonelInterface | null> (null)
+  const [detailPenugasan, setDetailPenugasan] = useState<detailPenugasanInterface[]>([])
+  const [statisticPersonels, setStatisticPersonels] = useState<statisticPersonelInterface | null>(null)
 
   const getPenugasanOnGoing = async () => {
     try {
-        const res = await MonitoringService.getPenugasanOnGoing();
-        const data = res.data.data as detailPenugasanInterface
-        console.log(data)
-        setDetailPenugasan(data)
+      const res = await MonitoringService.getPenugasanOnGoing();
+      const data = res.data.data as detailPenugasanInterface
+      console.log(data)
+      setDetailPenugasan(data)
 
     } catch (error) {
       console.error(error);
 
     }
   }
-  const getStatisticPersonels =  async () => {
+  const getStatisticPersonels = async () => {
     try {
-        const res = await MonitoringService.getStatisticPersonels();
-        const data = res.data.data as statisticPersonelInterface
-        console.log(data)
-        setStatisticPersonels(data)
+      const res = await MonitoringService.getStatisticPersonels();
+      const data = res.data.data as statisticPersonelInterface
+      console.log(data)
+      setStatisticPersonels(data)
 
     } catch (error) {
       console.error(error);
@@ -90,7 +90,7 @@ const Statistic = () => {
       title: 'Waktu Kegiatan',
       dataIndex: ['waktu_kegiatan', 'start_date'], // update the dataIndex to access the nested start_date property
       key: 'start_date',
-      render: (date) => moment(date).format('YYYY/MM/DD hh:mm'),
+      render: (date: any) => moment(date).format('YYYY/MM/DD hh:mm'),
     },
     {
       title: 'Personel Offline',
@@ -133,6 +133,7 @@ const Statistic = () => {
     { name: 'Danger', value: 1, label: '' },
   ];
 
+  const chartSize = 230
   const colors = ['#FFCC66', '#66CCCC', '#FF6666'];
   const sensorDataHR = [
     { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
@@ -184,28 +185,40 @@ const Statistic = () => {
     <Row style={{ width: '100%' }} gutter={24}>
       <Col md={6}>
         <Card>
-          <Space direction='vertical' style={{ width: '100%', textAlign: 'center' }}>
+          <Space direction='vertical' style={{ width: '100%', textAlign: 'center', minHeight: '100vh' }}>
             <Typography.Title level={3}>
               Alarm
             </Typography.Title>
-            <div style={{ display: "flex", flexDirection: "column", }}>
-                {alarms.map((alarm) => (
-                  <div key={alarm.id} style={{ border: "1px solid black", padding: "0px", margin: "0px", width: "100%" }}>
-                    <Row>
-                      <Typography.Text style={{ textAlign: "left" }}>{alarm.fullname}</Typography.Text>
-                      <h2 ></h2>
-                      <p style={{ textAlign: "right" }}>{alarm.timestamp}</p>
-                    </Row>
-                    <Row>
-                      <p style={{ textAlign: "left" }}>{alarm.message}</p>
-                    </Row>
-                    {/* Add more content here... */}
-                  </div>
-                ))}
-              </div>
+            {
+              alarms.map((alarm) => (
+                <Card style={{ width: '100%' }}>
+                  <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%' }}>
+                    <Typography.Text>{alarm.fullname}</Typography.Text>
+                    <Typography.Text>{alarm.timestamp}</Typography.Text>
+                  </Space>
+                  <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%' }}>
+                    <Typography.Text>{alarm.message}</Typography.Text>
+                  </Space>
+                </Card>
+              ))
+            }
+            {/* <div style={{ display: "flex", flexDirection: "column", }}>
+              {alarms.map((alarm) => (
+                <div key={alarm.id} style={{ border: "1px solid black", padding: "0px", margin: "0px", width: "100%" }}>
+                  <Row>
+                    <Typography.Text style={{ textAlign: "left" }}>{alarm.fullname}</Typography.Text>
+                    <h2 ></h2>
+                    <p style={{ textAlign: "right" }}>{alarm.timestamp}</p>
+                  </Row>
+                  <Row>
+                    <p style={{ textAlign: "left" }}>{alarm.message}</p>
+                  </Row>
+                </div>
+              ))}
+            </div> */}
 
             <Space direction='vertical'>
-             
+
             </Space>
           </Space>
         </Card>
@@ -239,7 +252,7 @@ const Statistic = () => {
               <Col span={8}>
                 <Row gutter={[16, 16]}>
                   <Col span={12} style={{ textAlign: 'right' }}>
-                    <Typography.Title level={1}>{statisticPersonels?.surat_tujumlah_personel_onlinegas}</Typography.Title>
+                    <Typography.Title level={1}>{statisticPersonels?.jumlah_personel_online}</Typography.Title>
                   </Col>
                   <Col span={12}>
                     <Row><Typography.Text>Personel</Typography.Text></Row>
@@ -250,104 +263,101 @@ const Statistic = () => {
             </Row>
           </Space>
         </Card>
-        <Row justify="center" align="middle">
-          <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} />
-        </Row>
+        <Space style={{width:'100%', justifyContent:'center', alignItems:'center', margin:'18px 0'}}>
+          <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} pagination={false}/>
+        </Space>
         <Row>
           <Col span={8}>
-          <Typography.Title level={4} style={{ textAlign: 'center' }}>Heart Rate</Typography.Title>
-            <PieChart width={400} height={400}>
-              <Pie
-                data={dataCharthr}
-                dataKey="value"
-                cx={200}
-                cy={200}
-                outerRadius={80}
-                fill="#8884d8"
-                label={({ name, value, label }) => `${value}`}
-              >
-                {dataCharthr.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </Col>
-          <Col span={8}>
-          <Typography.Title level={4} style={{ textAlign: 'center' }}>SpO2</Typography.Title>
-            <PieChart width={400} height={400}>
-              <Pie
-                data={dataChartsp}
-                dataKey="value"
-                cx={200}
-                cy={200}
-                outerRadius={80}
-                fill="#8884d8"
-                label={({ name, value, label }) => ` ${value}`}
-              >
-                {dataChartsp.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-            </PieChart>
+            <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 
+              <Typography.Title level={4}>Heart Rate</Typography.Title>
+              <PieChart width={chartSize} height={chartSize}>
+                <Pie
+                  data={dataCharthr}
+                  dataKey="value"
+                  cx={chartSize / 2}
+                  cy={chartSize / 2}
+                  outerRadius={chartSize / 5}
+                  fill="#8884d8"
+                  label={({ name, value, label }) => `${value}`}
+                >
+                  {dataCharthr.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+              <LineChart width={400} height={400} data={sensorDataHR}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="timestamp" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
+              </LineChart>
+            </Space>
           </Col>
           <Col span={8}>
-          <Typography.Title level={4} style={{ textAlign: 'center' }}>Temperature</Typography.Title>
-            <PieChart width={400} height={400}>
-              <Pie
-                data={dataChartt}
-                dataKey="value"
-                cx={200}
-                cy={200}
-                outerRadius={80}
-                fill="#8884d8"
-                label={({ name, value, label }) => `${value}`}
-              >
-                {dataChartt.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </Col>
-        </Row>
-        <Row gutter={[24, 24]}>
-          <Col span={8} >
-            <LineChart width={400} height={400} data={sensorDataHR}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="timestamp" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-            </LineChart>
-          </Col>
-          <Col span={8} >
-            <LineChart width={400} height={400} data={sensorDataSP}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="timestamp" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-            </LineChart>
+            <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+              <Typography.Title level={4}>SpO2</Typography.Title>
+              <PieChart width={chartSize} height={chartSize}>
+                <Pie
+                  data={dataChartsp}
+                  dataKey="value"
+                  cx={chartSize / 2}
+                  cy={chartSize / 2}
+                  outerRadius={chartSize / 5}
+                  fill="#8884d8"
+                  label={({ name, value, label }) => ` ${value}`}
+                >
+                  {dataChartsp.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+              <LineChart width={400} height={400} data={sensorDataSP}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="timestamp" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
+              </LineChart>
+            </Space>
           </Col>
           <Col span={8}>
-            <LineChart width={400} height={400} data={sensorDataT}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="timestamp" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-              <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-            </LineChart>
+            <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+              <Typography.Title level={4}>Temperature</Typography.Title>
+              <PieChart width={chartSize} height={chartSize}>
+                <Pie
+                  data={dataChartt}
+                  dataKey="value"
+                  cx={chartSize / 2}
+                  cy={chartSize / 2}
+                  outerRadius={chartSize / 5}
+                  fill="#8884d8"
+                  label={({ name, value, label }) => `${value}`}
+                >
+                  {dataChartt.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+              <LineChart width={400} height={400} data={sensorDataT}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="timestamp" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
+              </LineChart>
+            </Space>
           </Col>
-
         </Row>
       </Col>
     </Row>
