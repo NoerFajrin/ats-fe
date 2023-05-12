@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, Label } from 'recharts';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MonitoringService from '../../services/MonitoringService';
 import moment from 'moment';
+import { ColumnsType } from 'antd/es/table';
 
 
 interface AlarmInterface {
@@ -41,7 +42,7 @@ const Statistic = () => {
   const getPenugasanOnGoing = async () => {
     try {
       const res = await MonitoringService.getPenugasanOnGoing();
-      const data = res.data.data as detailPenugasanInterface
+      const data = res.data.data
       console.log(data)
       setDetailPenugasan(data)
 
@@ -69,7 +70,7 @@ const Statistic = () => {
     // Add more alarms here...
   ];
 
-  const columns = [
+  const columns: ColumnsType<detailPenugasanInterface> = [
     {
       title: 'Jumlah Personel',
       dataIndex: 'jumlah_personel',
