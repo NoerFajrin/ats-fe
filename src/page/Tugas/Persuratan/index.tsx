@@ -21,9 +21,9 @@ const onChange = (key: string) => {
   
 function Persuratan() {
   return (
-    <Space direction="vertical" style={{width:'100%'}}>
+    <Space direction="vertical" style={{width:'100%', minHeight:'80vh'}}>
         <Typography.Title level={3} style={{paddingLeft:15}}>Surat Tugas</Typography.Title>
-        <Tabs defaultActiveKey="1" style={{paddingLeft:15}} items={items} onChange={onChange} />
+        <Tabs defaultActiveKey="2" style={{paddingLeft:15}} items={items} onChange={onChange} />
     </Space>
   )
 }
