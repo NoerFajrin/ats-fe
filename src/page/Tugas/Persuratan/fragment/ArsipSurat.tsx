@@ -105,9 +105,7 @@ function ArsipSurat() {
       title: 'Aksi',
       dataIndex: 'id',
       key: 'action',
-      render: (_, data: SuratInterface) => {
-        console.log(_);
-
+      render: (_:any, data: SuratInterface) => {
         return (
           <Space direction='vertical'>
             <Button block icon={<EditOutlined />}>Edit</Button>

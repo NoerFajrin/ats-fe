@@ -49,11 +49,11 @@ function BuatSurat() {
       console.log(payload);
       const formData = new FormData()
       for (const [key, value] of Object.entries(payload)) {
-        formData.set(key, value)
+        formData.set(key, value as any)
       }
       const res = await SuratServices.CreateSurat(formData)
       openNotification('topRight')
-      setTimeout(()=> navigate('/penugasan'), 3000)
+      setTimeout(() => navigate('/penugasan'), 3000)
 
     } catch (error) {
       console.error(error);
@@ -74,10 +74,10 @@ function BuatSurat() {
     },
     validationSchema: SuratSchema,
     onSubmit: handleSubmit,
-    validateOnChange:false,
-    validateOnBlur:false,
+    validateOnChange: false,
+    validateOnBlur: false,
   })
-  
+
 
   const onFormLayoutChange = ({ size }: { size: SizeType }) => {
     setComponentSize(size);
@@ -91,7 +91,9 @@ function BuatSurat() {
             <Space direction='vertical' size={'small'}>
               <Typography.Paragraph strong style={{ margin: 0 }}>Surat tugas fisik (PDF)</Typography.Paragraph>
               <input type={'file'} name={'file'} accept="application/pdf" onChange={(e) => {
-                formik.setFieldValue('file', e.currentTarget.files[0])
+                if (e.currentTarget.files) {
+                  formik.setFieldValue('file', e.currentTarget?.files[0])
+                }
               }} />
               <Typography style={{ color: 'red', fontSize: 11 }}>{formik.errors.file}</Typography>
             </Space>
@@ -130,11 +132,11 @@ function BuatSurat() {
           <Popconfirm title={'Submit data'} description={'apakah data yang anda masukan sudah benar?'} onConfirm={formik.submitForm} okText={'Submit'} cancelText={'Batalkan'}>
             <Button style={{ backgroundColor: `#000000`, color: '#fff' }} disabled={busy}>Simpan Surat</Button>
           </Popconfirm>
-          
+
         </Space>
       </form>
     </Space>
-    
+
   )
 }
 

@@ -5,12 +5,12 @@ import PersonelServices from '../../services/PersonelServices';
 
 interface ListPersonelInterface {
   id: number | string,
-  fullname: string, 
+  fullname: string,
   role: number | string,
 }
 
 function FieldPersonel() {
-const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
+  const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
 
 
   const getPersonel = async () => {
@@ -28,7 +28,7 @@ const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
   }, [])
 
   const columns = [
-   
+
     {
       title: 'Full Name',
       dataIndex: 'fullname',
@@ -38,9 +38,9 @@ const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
-      render: (_, data: ListPersonelInterface) => {
-        let role="";
-        if (_=== 4){
+      render: (data: number) => {
+        let role = "";
+        if (data === 4) {
           role = " Field Personel"
         }
         else {
@@ -59,9 +59,7 @@ const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
       title: 'Aksi',
       dataIndex: 'id',
       key: 'action',
-      render: (_, data: ListPersonelInterface) => {
-        //console.log(_);
-
+      render: () => {
         return (
           <Space direction='vertical'>
             <Button type="primary">Detail</Button>
@@ -69,14 +67,14 @@ const [personelList, setPersonelist] = useState<ListPersonelInterface[]>([])
         );
       }
     },
-    
+
   ]
 
   return (
-    <Space direction="vertical" style={{width:"100%"}}>
-       <Typography.Title level={3} style={{paddingLeft:15}}>Field Personel</Typography.Title>
-        <Table dataSource={personelList} columns={columns} />
-    </Space> 
+    <Space direction="vertical" style={{ width: "100%" }}>
+      <Typography.Title level={3} style={{ paddingLeft: 15 }}>Field Personel</Typography.Title>
+      <Table dataSource={personelList} columns={columns} />
+    </Space>
   )
 }
 

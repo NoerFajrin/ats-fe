@@ -68,25 +68,25 @@ function Penugasan() {
       title: 'Leader Name',
       dataIndex: 'leader_profile',
       key: 'leader_profile',
-      render: (data: string)=>data.fullname,
+      render: (data: any)=> data.fullname,
     },
     {
       title: 'Tanggal Mulai',
       dataIndex: 'surat',
       key: 'surat',
-      render: (data: string)=>moment(data.start_date).format('DD/MM/YYYY hh:mm'),
+      render: (data: any)=>moment(data.start_date).format('DD/MM/YYYY hh:mm'),
     },
     {
       title: 'Tanggal Selsai',
       dataIndex: 'surat',
       key: 'surat',
-      render: (data: string)=>moment(data.end_date).format('DD/MM/YYYY hh:mm'),
+      render: (data: any)=>moment(data.end_date).format('DD/MM/YYYY hh:mm'),
     },
     {
       title: 'Jumlah Personel',
       dataIndex: 'personels',
       key: 'personels',
-      render: (data: number | string) => `${data.length} Personels`  
+      render: (data: any) => `${data.length} Personels`  
     },
   ]
   return (
