@@ -6,6 +6,7 @@ import moment from 'moment'
 import { ModalPenugasan, SingleSelect } from '../../../../components';
 import { useFormik } from 'formik';
 import ModalResult from '../../../../components/ModalResult/ModalResult';
+import { useNavigate } from 'react-router-dom';
 
 
 interface SuratInterface {
@@ -23,6 +24,8 @@ interface SuratInterface {
 }
 
 function ArsipSurat() {
+  const navigation = useNavigate();
+
   const [surat, setSurat] = useState<SuratInterface[]>([])
   const [idSuratTugas, setIdSuratTugas] = useState<number | string>(0);
 
@@ -55,6 +58,7 @@ function ArsipSurat() {
 
   const handleOk = () => {
     setIsModalOpen(false);
+    getSurat();
   };
 
   const handleCancel = () => {
@@ -112,7 +116,7 @@ function ArsipSurat() {
             }}>Lihat Surat Fisik</Button>
             {
               data.penugasan ?
-                <Button block danger>
+                <Button block danger onClick={() => navigation(`/penugasan/detail/${data.penugasan.id}`)}>
                   Lihat Penugasan
                 </Button>
                 :

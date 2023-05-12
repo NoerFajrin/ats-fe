@@ -6,7 +6,7 @@ import FieldPersonel from "../page/FieldPersonel";
 import Penugasan from "../page/Tugas/Penugasan";
 import Persuratan from "../page/Tugas/Persuratan";
 import TugasAktif from "../page/Tugas/TugasAktif";
-import { Dashboard, Statistic } from "../page";
+import { Dashboard, DetailPenugasan, Statistic } from "../page";
 
 
 const AppRoute = createBrowserRouter([
@@ -17,6 +17,7 @@ const AppRoute = createBrowserRouter([
   { path: '/', element: <AdminLayout />, children: [{ path: '/tugas-aktif', element: <TugasAktif />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/surat-tugas', element: <Persuratan />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/penugasan', element: <Penugasan />}]},
+  { path: '/', element: <AdminLayout />, children: [{ path: '/penugasan/detail/:penugasanId', element: <DetailPenugasan />}]},
   { path: '/', element: <AdminLayout />, children: [{ path: '/field-personel', element: <FieldPersonel />}]},
 ])
 
