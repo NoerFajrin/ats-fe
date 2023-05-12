@@ -108,7 +108,7 @@ function ArsipSurat() {
       render: (_:any, data: SuratInterface) => {
         return (
           <Space direction='vertical'>
-            <Button block icon={<EditOutlined />}>Edit</Button>
+            {/* <Button block icon={<EditOutlined />}>Edit</Button> */}
             <Button block icon={<EyeOutlined />} onClick={() => {
               window.open(data.file_url, '_blank')
             }}>Lihat Surat Fisik</Button>
