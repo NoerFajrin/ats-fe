@@ -1,7 +1,9 @@
 import { Card, Col, Row, Space, Typography, Statistic as Stat, Table } from 'antd'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, Label } from 'recharts';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import MonitoringService from '../../services/MonitoringService';
+import moment from 'moment';
 
 
 interface AlarmInterface {
@@ -15,51 +17,51 @@ interface CardProps {
   alarm: AlarmInterface;
 }
 
-const data = [
-  {
-    key: '1',
-    jumlahPersonel: 5,
-    namaKegiatan: 'Pembangunan Jembatan',
-    suratTugas: 'ST-001',
-    waktuPelaksanaan: '2023-09-01 - 2023-09-01',
-    personelOffline: 1
-  },
-  {
-    key: '2',
-    jumlahPersonel: 8,
-    namaKegiatan: 'Peningkatan Jalan',
-    suratTugas: 'ST-002',
-    waktuPelaksanaan: '2023-09-01 - 2023-09-01',
-    personelOffline: 1
-  },
-  {
-    key: '3',
-    jumlahPersonel: 3,
-    namaKegiatan: 'Rehabilitasi Sungai',
-    suratTugas: 'ST-003',
-    waktuPelaksanaan: '2023-09-01 - 2023-09-01',
-    personelOffline: 0
-  },
-  {
-    key: '4',
-    jumlahPersonel: 6,
-    namaKegiatan: 'Perbaikan Jembatan',
-    suratTugas: 'ST-004',
-    waktuPelaksanaan: '2023-09-01 - 2023-09-01',
-    personelOffline: 3
-  },
-  {
-    key: '5',
-    jumlahPersonel: 4,
-    namaKegiatan: 'Pembangunan Gedung',
-    suratTugas: 'ST-005',
-    waktuPelaksanaan: '2023-09-01 - 2023-09-01',
-    personelOffline: 0
-  }
-];
-
+interface detailPenugasanInterface {
+  jumlah_personel: number | string;
+  nama_kegiatan: string;
+  personel_offline: number | string;
+  surat_tugas: string;
+  waktu_kegiatan: {
+    end_date: string;
+    start_date: string;
+  };
+}
+interface statisticPersonelInterface {
+  jumlah_penugasan_berlangsung: number | string;
+  jumlah_personel_dalam_penugasan: number | string;
+  jumlah_personel_offline: number | string;
+  surat_tujumlah_personel_onlinegas: number | string;
+}
 
 const Statistic = () => {
+  const [detailPenugasan, setDetailPenugasan] = useState <detailPenugasanInterface| null>(null)
+  const [statisticPersonels, setStatisticPersonels] = useState<statisticPersonelInterface | null> (null)
+
+  const getPenugasanOnGoing = async () => {
+    try {
+        const res = await MonitoringService.getPenugasanOnGoing();
+        const data = res.data.data as detailPenugasanInterface
+        console.log(data)
+        setDetailPenugasan(data)
+
+    } catch (error) {
+      console.error(error);
+
+    }
+  }
+  const getStatisticPersonels =  async () => {
+    try {
+        const res = await MonitoringService.getStatisticPersonels();
+        const data = res.data.data as statisticPersonelInterface
+        console.log(data)
+        setStatisticPersonels(data)
+
+    } catch (error) {
+      console.error(error);
+
+    }
+  }
   const alarms: AlarmInterface[] = [
     { id: 1, fullname: "Padlan Alqinsi", message: "HR diatas rata-rata", timestamp: "19:30" },
     { id: 2, fullname: "Alvin Mustafa", message: "HR diatas rata-rata", timestamp: "19:30" },
@@ -70,29 +72,30 @@ const Statistic = () => {
   const columns = [
     {
       title: 'Jumlah Personel',
-      dataIndex: 'jumlahPersonel',
-      key: 'jumlahPersonel',
+      dataIndex: 'jumlah_personel',
+      key: 'jumlah_personel',
       align: 'center'
     },
     {
       title: 'Nama Kegiatan',
-      dataIndex: 'namaKegiatan',
-      key: 'namaKegiatan'
+      dataIndex: 'nama_kegiatan',
+      key: 'nama_kegiatan'
     },
     {
       title: 'Surat Tugas',
-      dataIndex: 'suratTugas',
-      key: 'suratTugas'
+      dataIndex: 'surat_tugas',
+      key: 'surat_tugas'
     },
     {
-      title: 'Waktu Pelaksanaan',
-      dataIndex: 'waktuPelaksanaan',
-      key: 'waktuPelaksanaan'
+      title: 'Waktu Kegiatan',
+      dataIndex: ['waktu_kegiatan', 'start_date'], // update the dataIndex to access the nested start_date property
+      key: 'start_date',
+      render: (date) => moment(date).format('YYYY/MM/DD hh:mm'),
     },
     {
       title: 'Personel Offline',
-      dataIndex: 'personelOffline',
-      key: 'personelOffline',
+      dataIndex: 'personel_offline',
+      key: 'personel_offline',
       align: 'center'
     }
   ];
@@ -173,6 +176,10 @@ const Statistic = () => {
     { timestamp: '10:00', danger: 2, warning: 3, safe: 17 },
     { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
   ];
+  useEffect(() => {
+    getPenugasanOnGoing();
+    getStatisticPersonels();
+  }, [])
   return (
     <Row style={{ width: '100%' }} gutter={24}>
       <Col md={6}>
@@ -181,11 +188,9 @@ const Statistic = () => {
             <Typography.Title level={3}>
               Alarm
             </Typography.Title>
-
-            <Space direction='vertical'>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "column", }}>
                 {alarms.map((alarm) => (
-                  <div key={alarm.id} style={{ border: "1px solid black", padding: "16px", margin: "16px", width: "100%" }}>
+                  <div key={alarm.id} style={{ border: "1px solid black", padding: "0px", margin: "0px", width: "100%" }}>
                     <Row>
                       <Typography.Text style={{ textAlign: "left" }}>{alarm.fullname}</Typography.Text>
                       <h2 ></h2>
@@ -198,6 +203,9 @@ const Statistic = () => {
                   </div>
                 ))}
               </div>
+
+            <Space direction='vertical'>
+             
             </Space>
           </Space>
         </Card>
@@ -209,7 +217,7 @@ const Statistic = () => {
               <Col span={8}>
                 <Row gutter={[16, 16]}>
                   <Col span={12} style={{ textAlign: 'right' }}>
-                    <Typography.Title level={1}>27</Typography.Title>
+                    <Typography.Title level={1}>{statisticPersonels?.jumlah_personel_dalam_penugasan}</Typography.Title>
                   </Col>
                   <Col span={12}>
                     <Row><Typography.Text>Personel</Typography.Text></Row>
@@ -220,7 +228,7 @@ const Statistic = () => {
               <Col span={8}>
                 <Row gutter={[16, 16]}>
                   <Col span={12} style={{ textAlign: 'right' }}>
-                    <Typography.Title level={1}>5</Typography.Title>
+                    <Typography.Title level={1}>{statisticPersonels?.jumlah_penugasan_berlangsung}</Typography.Title>
                   </Col>
                   <Col span={12}>
                     <Row><Typography.Text>Penugasan</Typography.Text></Row>
@@ -231,7 +239,7 @@ const Statistic = () => {
               <Col span={8}>
                 <Row gutter={[16, 16]}>
                   <Col span={12} style={{ textAlign: 'right' }}>
-                    <Typography.Title level={1}>26</Typography.Title>
+                    <Typography.Title level={1}>{statisticPersonels?.surat_tujumlah_personel_onlinegas}</Typography.Title>
                   </Col>
                   <Col span={12}>
                     <Row><Typography.Text>Personel</Typography.Text></Row>
@@ -243,7 +251,7 @@ const Statistic = () => {
           </Space>
         </Card>
         <Row justify="center" align="middle">
-          <Table dataSource={data} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} />
+          <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} />
         </Row>
         <Row>
           <Col span={8}>
