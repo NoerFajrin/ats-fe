@@ -5,6 +5,8 @@ import { LatLngExpression } from 'leaflet'
 import SocketHelper from '../../helpers/socket'
 import DetailPersonnelModal from './component/DetailPersonnelModal'
 import { Card, FloatButton, Space, Tooltip, Typography } from 'antd'
+import { Link, useNavigate } from 'react-router-dom'
+import {BarChartOutlined} from '@ant-design/icons'
 
 interface PersonelInterface {
     user: string;
@@ -18,18 +20,9 @@ interface PersonelInterface {
     nama_penugasan: string
 }
 const Dashboard = () => {
+    const navigation = useNavigate()
     // const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
-    const [personnels, setPersonnels] = useState<PersonelInterface[]>([{
-        user: 'Shelby',
-        position:[-6.200000,106.816666],
-        sensor_id: 'PDLGTG27',
-        sensor_parameter: {
-            body_temperature: 34,
-            spo2: 96,
-            heart_rate: 80
-        },
-        nama_penugasan: 'Pengawalan Keluarga'
-    }])
+    const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
     const [activePersonel, setActivePersonel] = useState<PersonelInterface | null>(null)
     const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
     useEffect(() => {
@@ -59,7 +52,7 @@ const Dashboard = () => {
             currentList = [...currentList, personnel]
         } else {
             currentList[isExist] = personnel
-            if(activePersonel?.sensor_id === personnel.sensor_id){
+            if (activePersonel?.sensor_id === personnel.sensor_id) {
                 setActivePersonel(personnel)
             }
         }
@@ -104,9 +97,16 @@ const Dashboard = () => {
                 activePersonel &&
                 <DetailPersonnelModal personnel={activePersonel} open={detailModalOpen} onClose={() => setDetailModalOpen(false)} />
             }
-            <FloatButton.Group style={{zIndex:400}} trigger='hover' type='primary' >
+            <FloatButton.Group style={{ zIndex: 400 }} trigger='hover' type='primary' >
                 <Tooltip title={'Penugasan'} placement={'left'}>
-                    <FloatButton/>
+                    <Link to={'/surat-tugas'}>
+                        <FloatButton />
+                    </Link>
+                </Tooltip>
+                <Tooltip title={'Statistic'} placement={'left'}>
+                    <Link to={'/statistic'}>
+                        <FloatButton icon={<BarChartOutlined/>}/>
+                    </Link>
                 </Tooltip>
             </FloatButton.Group>
         </div>

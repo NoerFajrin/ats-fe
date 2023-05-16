@@ -1,4 +1,4 @@
-import { Button, Col, FloatButton, Modal, Popconfirm, Row, Select, Space, Table } from 'antd';
+import { Button, Col, FloatButton, Modal, Popconfirm, Row, Select, Space, Table, Tag } from 'antd';
 import React, { useEffect, useState } from 'react'
 import SuratServices from '../../../../services/SuratServices'
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
@@ -7,6 +7,7 @@ import { ModalPenugasan, SingleSelect } from '../../../../components';
 import { useFormik } from 'formik';
 import ModalResult from '../../../../components/ModalResult/ModalResult';
 import { useNavigate } from 'react-router-dom';
+import { PENUGASAN } from '../../../../res/peenugasan/penugasan.enum';
 
 
 interface SuratInterface {
@@ -96,21 +97,36 @@ function ArsipSurat() {
       render: (data: string) => moment(data).format('DD/MM/YYYY hh:mm'),
     },
     {
-      title: 'Akhir Kegiatan',
-      dataIndex: 'end_date',
-      key: 'end_date',
-      render: (data: string) => moment(data).format('DD/MM/YYYY hh:mm')
+      title: 'Status',
+      dataIndex: 'penugasan',
+      key: 'penugasan',
+      render: (data: { status: number }) => {
+        if (data) {
+          console.log(data.status,'case');
+          
+          switch (data.status) {
+            case PENUGASAN.DISPATCHED:
+              return <Tag color='blue'>DIBUAT</Tag>
+            case PENUGASAN.ONGOING:
+              return <Tag color='red'>BERLANGSUNG</Tag>
+            case PENUGASAN.DONE:
+              return <Tag color='green'>SELESAI</Tag>
+            default:
+              return <Tag color='red'>BELUM</Tag>
+          }
+        } else {
+          return <Tag color='red'>BELUM DITUGASKAN</Tag>
+        }
+      }
     },
     {
       title: 'Aksi',
       dataIndex: 'id',
       key: 'action',
-      render: (_, data: SuratInterface) => {
-        console.log(_);
-
+      render: (_: any, data: SuratInterface) => {
         return (
           <Space direction='vertical'>
-            <Button block icon={<EditOutlined />}>Edit</Button>
+            {/* <Button block icon={<EditOutlined />}>Edit</Button> */}
             <Button block icon={<EyeOutlined />} onClick={() => {
               window.open(data.file_url, '_blank')
             }}>Lihat Surat Fisik</Button>

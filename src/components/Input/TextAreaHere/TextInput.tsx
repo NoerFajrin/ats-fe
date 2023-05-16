@@ -8,7 +8,7 @@ type BasicProps = {
   value: string;
   label: string;
   placeholder?: string;
-  onChange: ChangeEventHandler<HTMLInputElement>;
+  onChange: ChangeEventHandler<HTMLTextAreaElement>;
   errorText?: string;
 };
 

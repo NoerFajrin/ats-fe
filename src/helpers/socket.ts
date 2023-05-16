@@ -1,9 +1,7 @@
 import {io} from 'socket.io-client'
 
-const URL = `http://localhost:2223`
-const SOCKET_CONFIG = {
+const URL = import.meta.env.VITE_WS_ENDPOINT
 
-}
 const SocketHelper = {
     createConnection: io(URL)
 }

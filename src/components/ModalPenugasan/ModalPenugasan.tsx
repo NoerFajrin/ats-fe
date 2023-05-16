@@ -16,6 +16,7 @@ import SelectSearch from '../Input/SelectSearch';
 import useDebounce from '../../hooks/debounce';
 import UserServices from '../../services/UserService';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import axios from 'axios';
 interface SuratInterface {
   id: number | string,
   created_at: string,
@@ -85,9 +86,9 @@ function ModalPenugasan({
 
   const searchQuery = useDebounce(query, 1000);
   const handleNameSearch = async (input: string) => {
-    const res = await UserServices.findUser(1, 10, input)
+    const res = await PersonelServices.AvailablePersonel(selectedSurat?.start_date || "", selectedSurat?.end_date || "")
     const data = res.data.data.data
-    const formattedData = data.map(user => ({ value: user.id, label: user.fullname }))
+    const formattedData = data.map((user:any) => ({ value: user.id, label: user.fullname }))
     setLeaderSearchList(formattedData)
 
   }
@@ -165,9 +166,9 @@ function ModalPenugasan({
       nama_kegiatan: selectedSurat?.nama_kegiatan,
       catatan_penugasan: formik.values.catatan_penugasan,
       leader_id: Number(selectedLeaderId),
-      list_personel: [{id:selectedLeaderId},...selectedID],
-      todo: activityList.map((activity:Acivity)=> ({name:activity.name,description:activity.description}))
-    }    
+      list_personel: [{ id: selectedLeaderId }, ...selectedID],
+      todo: activityList.map((activity: Acivity) => ({ name: activity.name, description: activity.description }))
+    }
     try {
       const res = await PenugasanServices.CreatePenugasan(payload)
       const successMsg = res.data.data.message
@@ -175,8 +176,10 @@ function ModalPenugasan({
       console.log(res.data);
       onOk()
     } catch (error) {
-      const errorMsg = error?.response?.data?.error?.response?.error || "";
-      setResulmodalProperty({ open: true, status: "error", title: "Tidak Dapat Memproses Data", subTitle: errorMsg })
+      if(axios.isAxiosError(error)){
+        const errorMsg = error?.response?.data?.error?.response?.error || "";
+        setResulmodalProperty({ open: true, status: "error", title: "Tidak Dapat Memproses Data", subTitle: errorMsg })
+      }
       console.error(error);
 
     }
@@ -293,7 +296,7 @@ function ModalPenugasan({
                       onClick={() => {
                         const newList = activityList.filter((activity: Acivity) => activity.key !== item.key)
                         setActivityList(newList)
-                        setActiveActivity({name:'',description:'',key:''})
+                        setActiveActivity({ name: '', description: '', key: '' })
                       }}
                       danger
                       icon={<DeleteOutlined />}
