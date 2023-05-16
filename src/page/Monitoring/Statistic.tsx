@@ -12,7 +12,11 @@ interface AlarmInterface {
   message: string,
   timestamp: string
 }
-
+interface DataChart {
+  name: string;
+  value: number;
+  label: string;
+}
 interface CardProps {
   alarm: AlarmInterface;
 }
@@ -37,6 +41,9 @@ interface statisticPersonelInterface {
 const Statistic = () => {
   const [detailPenugasan, setDetailPenugasan] = useState <detailPenugasanInterface| null>(null)
   const [statisticPersonels, setStatisticPersonels] = useState<statisticPersonelInterface | null> (null)
+  const [dataChartsp, setDataChartsp] = useState<DataChart[]>([]);
+  const [dataChartHr, setDataChartHr] = useState<DataChart[]>([]);
+  const [dataChartTemp, setDataChartTemp] = useState<DataChart[]>([]);
 
   const getPenugasanOnGoing = async () => {
     try {
@@ -62,6 +69,53 @@ const Statistic = () => {
 
     }
   }
+  const getStatisticTemperature = async () => {
+    try {
+      const res = await MonitoringService.getStatisticHealth();
+      const temp = res.data.data.temperature;
+      console.log(temp);
+      const formattedData = Object.keys(temp).map((key) => ({
+        name: key,
+        value: temp[key],
+        label: key,
+      }));
+      setDataChartTemp(formattedData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  const getStatisticHeartRate = async () => {
+    try {
+      const res = await MonitoringService.getStatisticHealth();
+      const heart_rate = res.data.data.heart_rate;
+      console.log(heart_rate);
+      const formattedData = Object.keys(heart_rate).map((key) => ({
+        name: key,
+        value: heart_rate[key],
+        label: key,
+      }));
+      setDataChartHr(formattedData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getStatisticSpo2 = async () => {
+    try {
+      const res = await MonitoringService.getStatisticHealth();
+      const spo2 = res.data.data.spo2;
+      console.log(spo2);
+      const formattedData = Object.keys(spo2).map((key) => ({
+        name: key,
+        value: spo2[key],
+        label: key,
+      }));
+      setDataChartsp(formattedData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const alarms: AlarmInterface[] = [
     { id: 1, fullname: "Padlan Alqinsi", message: "HR diatas rata-rata", timestamp: "19:30" },
     { id: 2, fullname: "Alvin Mustafa", message: "HR diatas rata-rata", timestamp: "19:30" },
@@ -99,41 +153,7 @@ const Statistic = () => {
       align: 'center'
     }
   ];
-
-
-  interface DataChartHR {
-    name: string;
-    value: number;
-    label: string;
-  }
-  interface DataChartSP {
-    name: string;
-    value: number;
-    label: string;
-  }
-  interface DataChartT {
-    name: string;
-    value: number;
-    label: string;
-  }
-
-  const dataCharthr: DataChartHR[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 8, label: '' },
-    { name: 'Danger', value: 1, label: '' },
-  ];
-  const dataChartsp: DataChartSP[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 5, label: '' },
-    { name: 'Danger', value: 2, label: '' },
-  ];
-  const dataChartt: DataChartT[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 12, label: '' },
-    { name: 'Danger', value: 1, label: '' },
-  ];
-
-  const colors = ['#FFCC66', '#66CCCC', '#FF6666'];
+  const colors = [ '#66CCCC','#FFCC66', '#FF6666', ]; //Aman, Waspada, Bahaya 
   const sensorDataHR = [
     { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
     { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
@@ -179,6 +199,9 @@ const Statistic = () => {
   useEffect(() => {
     getPenugasanOnGoing();
     getStatisticPersonels();
+    getStatisticTemperature();
+    getStatisticHeartRate();
+    getStatisticSpo2();
   }, [])
   return (
     <Row style={{ width: '100%' }} gutter={24}>
@@ -254,24 +277,27 @@ const Statistic = () => {
           <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} />
         </Row>
         <Row>
-          <Col span={8}>
-          <Typography.Title level={4} style={{ textAlign: 'center' }}>Heart Rate</Typography.Title>
-            <PieChart width={400} height={400}>
-              <Pie
-                data={dataCharthr}
-                dataKey="value"
-                cx={200}
-                cy={200}
-                outerRadius={80}
-                fill="#8884d8"
-                label={({ name, value, label }) => `${value}`}
-              >
-                {dataCharthr.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </Col>
+        <Col span={8}>
+        <Typography.Title level={4} style={{ textAlign: 'center' }}>
+          Heart Rate
+        </Typography.Title>
+        <PieChart width={400} height={400}>
+          <Pie
+            data={dataChartHr}
+            dataKey="value"
+            cx={200}
+            cy={200}
+            outerRadius={80}
+            fill="#8884d8"
+            label={({ value }) => ` ${value}`}
+          >
+            {dataChartHr.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Pie>
+        </PieChart>
+        
+      </Col>
           <Col span={8}>
           <Typography.Title level={4} style={{ textAlign: 'center' }}>SpO2</Typography.Title>
             <PieChart width={400} height={400}>
@@ -293,21 +319,22 @@ const Statistic = () => {
           </Col>
           <Col span={8}>
           <Typography.Title level={4} style={{ textAlign: 'center' }}>Temperature</Typography.Title>
-            <PieChart width={400} height={400}>
+          <PieChart width={400} height={400}>
               <Pie
-                data={dataChartt}
+                data={dataChartTemp}
                 dataKey="value"
                 cx={200}
                 cy={200}
                 outerRadius={80}
                 fill="#8884d8"
-                label={({ name, value, label }) => `${value}`}
+                label={({ name, value, label }) => ` ${value}`}
               >
-                {dataChartt.map((entry, index) => (
+                {dataChartTemp.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
               </Pie>
             </PieChart>
+            
           </Col>
         </Row>
         <Row gutter={[24, 24]}>

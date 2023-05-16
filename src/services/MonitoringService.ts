@@ -11,8 +11,11 @@ const MonitoringService = {
         return await client.get(`/statistic/data`)
     },
     getStatisticPersonels : async () => {
-        return await client.get(`/statistic/length`)
+        return await client.get(`/statistic/personels`)
     },
+    getStatisticHealth : async () => {
+        return await client.get(`/statistic/anomali`)
+    }
 }
 
 export default MonitoringService
