@@ -5,6 +5,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import MonitoringService from '../../services/MonitoringService';
 import moment from 'moment';
 import { ColumnsType } from 'antd/es/table';
+import PC from './component/PieChart'
+import SocketHelper from '../../helpers/socket';
 
 
 interface AlarmInterface {
@@ -102,40 +104,29 @@ const Statistic = () => {
   ];
 
 
-  interface DataChartHR {
+  interface DataChartInterface {
     name: string;
     value: number;
     label: string;
-  }
-  interface DataChartSP {
-    name: string;
-    value: number;
-    label: string;
-  }
-  interface DataChartT {
-    name: string;
-    value: number;
-    label: string;
+    color: string;
   }
 
-  const dataCharthr: DataChartHR[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 8, label: '' },
-    { name: 'Danger', value: 1, label: '' },
+  const dataCharthr: DataChartInterface[] = [
+    { name: 'Warning', value: 1, label: 'W', color: '#FFCC66' },
+    { name: 'Safe', value: 8, label: 'S', color: '#66CCCC' },
+    { name: 'Danger', value: 1, label: 'D', color: '#FF6666' },
   ];
-  const dataChartsp: DataChartSP[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 5, label: '' },
-    { name: 'Danger', value: 2, label: '' },
+  const dataChartsp: DataChartInterface[] = [
+    { name: 'Warning', value: 1, label: 'W', color: '#FFCC66' },
+    { name: 'Safe', value: 8, label: 'S', color: '#66CCCC' },
+    { name: 'Danger', value: 1, label: 'D', color: '#FF6666' },
   ];
-  const dataChartt: DataChartT[] = [
-    { name: 'Warning', value: 1, label: '' },
-    { name: 'Safe', value: 12, label: '' },
-    { name: 'Danger', value: 1, label: '' },
+  const dataChartt: DataChartInterface[] = [
+    { name: 'Warning', value: 1, label: 'W', color: '#FFCC66' },
+    { name: 'Safe', value: 8, label: 'S', color: '#66CCCC' },
+    { name: 'Danger', value: 1, label: 'D', color: '#FF6666' },
   ];
 
-  const chartSize = 230
-  const colors = ['#FFCC66', '#66CCCC', '#FF6666'];
   const sensorDataHR = [
     { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
     { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
@@ -178,10 +169,19 @@ const Statistic = () => {
     { timestamp: '10:00', danger: 2, warning: 3, safe: 17 },
     { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
   ];
+
+  const handleAlarm = (payload) => {
+    console.log(payload,'alarm')
+  }
   useEffect(() => {
     getPenugasanOnGoing();
     getStatisticPersonels();
   }, [])
+
+  useEffect(() => {
+    const socket = SocketHelper.createConnection
+    socket.on('alarm-channel', handleAlarm)
+}, [])
   return (
     <Row style={{ width: '100%' }} gutter={24}>
       <Col md={6}>
@@ -264,29 +264,15 @@ const Statistic = () => {
             </Row>
           </Space>
         </Card>
-        <Space style={{width:'100%', justifyContent:'center', alignItems:'center', margin:'18px 0'}}>
-          <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} pagination={false}/>
+        <Space style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: '18px 0' }}>
+          <Table dataSource={detailPenugasan} columns={columns} style={{ textAlign: 'center', paddingTop: '20px' }} pagination={false} />
         </Space>
         <Row>
           <Col span={8}>
             <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 
               <Typography.Title level={4}>Heart Rate</Typography.Title>
-              <PieChart width={chartSize} height={chartSize}>
-                <Pie
-                  data={dataCharthr}
-                  dataKey="value"
-                  cx={chartSize / 2}
-                  cy={chartSize / 2}
-                  outerRadius={chartSize / 5}
-                  fill="#8884d8"
-                  label={({ name, value, label }) => `${value}`}
-                >
-                  {dataCharthr.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
+              <PC data={dataCharthr} size={320}/>
               <LineChart width={400} height={400} data={sensorDataHR}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" />
@@ -302,21 +288,7 @@ const Statistic = () => {
           <Col span={8}>
             <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Title level={4}>SpO2</Typography.Title>
-              <PieChart width={chartSize} height={chartSize}>
-                <Pie
-                  data={dataChartsp}
-                  dataKey="value"
-                  cx={chartSize / 2}
-                  cy={chartSize / 2}
-                  outerRadius={chartSize / 5}
-                  fill="#8884d8"
-                  label={({ name, value, label }) => ` ${value}`}
-                >
-                  {dataChartsp.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
+              <PC data={dataChartsp} size={320} />
               <LineChart width={400} height={400} data={sensorDataSP}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" />
@@ -332,21 +304,7 @@ const Statistic = () => {
           <Col span={8}>
             <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Title level={4}>Temperature</Typography.Title>
-              <PieChart width={chartSize} height={chartSize}>
-                <Pie
-                  data={dataChartt}
-                  dataKey="value"
-                  cx={chartSize / 2}
-                  cy={chartSize / 2}
-                  outerRadius={chartSize / 5}
-                  fill="#8884d8"
-                  label={({ name, value, label }) => `${value}`}
-                >
-                  {dataChartt.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
+              <PC data={dataChartt} size={320} />
               <LineChart width={400} height={400} data={sensorDataT}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" />
