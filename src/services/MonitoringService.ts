@@ -4,8 +4,8 @@ const MonitoringService = {
     getPenugasanAverageValue: async (penugasanId: string | number) => {
         return await client.get(`/monitoring/statistic/penugasan?penugasan_id=${penugasanId}`)
     },
-    getAlarm: async(status: string | number) =>{
-        return await client.get(`/alarm?isRead=${status}`)
+    getAlarm: async() =>{
+        return await client.get(`/alarm`)
     },
     getPenugasanOnGoing : async () => {
         return await client.get(`/statistic/data`)
@@ -15,7 +15,7 @@ const MonitoringService = {
     },
     getStatisticHealth : async () => {
         return await client.get(`/statistic/anomali`)
-    }
+    },
 }
 
 export default MonitoringService

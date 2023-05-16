@@ -1,4 +1,4 @@
-import { Card, Col, Row, Space, Typography, Statistic as Stat, Table } from 'antd'
+import { Card, Col, Row, Space, Typography, Statistic as Stat, Table, notification } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, Label } from 'recharts';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
@@ -9,12 +9,13 @@ import PC from './component/PieChart'
 import SocketHelper from '../../helpers/socket';
 import { HMPallete } from '../../helpers/pallete';
 
-
 interface AlarmInterface {
-  id: number | string,
-  fullname: string,
-  message: string,
-  timestamp: string
+  id: number | string;
+  fullname: string;
+  nama_kegiatan: string;
+  detail: string;
+  datenow: string;
+  isRead: number;
 }
 interface DataChart {
   name: string;
@@ -49,6 +50,7 @@ const Statistic = () => {
   const [dataChartsp, setDataChartsp] = useState<DataChart[]>([]);
   const [dataChartHr, setDataChartHr] = useState<DataChart[]>([]);
   const [dataChartTemp, setDataChartTemp] = useState<DataChart[]>([]);
+  const [alarms, setAlarms] = useState<AlarmInterface[]>([]);
 
   const getPenugasanOnGoing = async () => {
     try {
@@ -56,6 +58,17 @@ const Statistic = () => {
       const data = res.data.data
       console.log(data)
       setDetailPenugasan(data)
+
+    } catch (error) {
+      console.error(error);
+
+    }
+  }
+  const getAlarm = async () => {
+    try {
+      const res = await MonitoringService.getAlarm();
+      const alarmData = res.data.data;
+      setAlarms(alarmData);
 
     } catch (error) {
       console.error(error);
@@ -112,12 +125,12 @@ const Statistic = () => {
   };
 
 
-  const alarms: AlarmInterface[] = [
-    { id: 1, fullname: "Padlan Alqinsi", message: "HR diatas rata-rata", timestamp: "19:30" },
-    { id: 2, fullname: "Alvin Mustafa", message: "HR diatas rata-rata", timestamp: "19:30" },
-    { id: 3, fullname: "Eric Ten Hag", message: "HR diatas rata-rata", timestamp: "19:30" },
-    // Add more alarms here...
-  ];
+  // const alarms: AlarmInterface[] = [
+  //   { id: 1, fullname: "Padlan Alqinsi", message: "HR diatas rata-rata", timestamp: "19:30" },
+  //   { id: 2, fullname: "Alvin Mustafa", message: "HR diatas rata-rata", timestamp: "19:30" },
+  //   { id: 3, fullname: "Eric Ten Hag", message: "HR diatas rata-rata", timestamp: "19:30" },
+  //   // Add more alarms here...
+  // ];
 
   const columns: ColumnsType<detailPenugasanInterface> = [
     {
@@ -156,7 +169,6 @@ const Statistic = () => {
     label: string;
     color: string;
   }
-
   const sensorDataHR = [
     { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
     { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
@@ -201,17 +213,32 @@ const Statistic = () => {
   ];
 
   const handleAlarm = (payload: any) => {
-    console.log(payload, 'alarm')
+    try {
+      const alarm = JSON.parse(payload) as AlarmInterface;
+      console.log(alarm, 'alarm');
+      setAlarms((prevAlarms) => [...prevAlarms, alarm]);
+      notification.open({
+        message: `New Alarm`,
+        description: `${alarm.fullname} ${alarm.detail}`,
+        placement: 'topLeft',
+      });
+    } catch (error) {
+      console.error('Error parsing alarm payload:', error);
+    }
   }
   useEffect(() => {
     getPenugasanOnGoing();
     getStatisticPersonels();
     getPieChartData();
+    getAlarm();
   }, [])
 
   useEffect(() => {
     const socket = SocketHelper.createConnection
-    socket.on('alarm-channel', handleAlarm)
+    socket.on('alarm-channel', handleAlarm);
+    return () => {
+      socket.off('alarm-channel', handleAlarm);
+    };
   }, [])
   return (
     <Row style={{ width: '100%' }} gutter={24}>
@@ -222,33 +249,18 @@ const Statistic = () => {
               Alarm
             </Typography.Title>
             {
-              alarms.map((alarm) => (
+              [...alarms].reverse().map((alarm) => (
                 <Card style={{ width: '100%' }}>
                   <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%' }}>
                     <Typography.Text>{alarm.fullname}</Typography.Text>
-                    <Typography.Text>{alarm.timestamp}</Typography.Text>
+                    <Typography.Text>{moment(alarm.datenow).format('HH:mm')}</Typography.Text>
                   </Space>
-                  <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%' }}>
-                    <Typography.Text>{alarm.message}</Typography.Text>
+                  <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%', textAlign: 'left' }}>
+                    <Typography.Text>{alarm.detail}</Typography.Text>
                   </Space>
                 </Card>
               ))
             }
-            {/* <div style={{ display: "flex", flexDirection: "column", }}>
-              {alarms.map((alarm) => (
-                <div key={alarm.id} style={{ border: "1px solid black", padding: "0px", margin: "0px", width: "100%" }}>
-                  <Row>
-                    <Typography.Text style={{ textAlign: "left" }}>{alarm.fullname}</Typography.Text>
-                    <h2 ></h2>
-                    <p style={{ textAlign: "right" }}>{alarm.timestamp}</p>
-                  </Row>
-                  <Row>
-                    <p style={{ textAlign: "left" }}>{alarm.message}</p>
-                  </Row>
-                </div>
-              ))}
-            </div> */}
-
             <Space direction='vertical'>
 
             </Space>
