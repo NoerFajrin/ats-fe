@@ -170,7 +170,7 @@ const Statistic = () => {
     { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
   ];
 
-  const handleAlarm = (payload) => {
+  const handleAlarm = (payload: any) => {
     console.log(payload,'alarm')
   }
   useEffect(() => {
