@@ -1,7 +1,9 @@
-import { Space, Table, Tabs, TabsProps, Typography } from 'antd'
+import { Button, Space, Table, Tabs, TabsProps, Tag, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import PenugasanServices from '../../../services/PenugasanServices';
 import moment from 'moment';
+import { PENUGASAN } from '../../../res/peenugasan/penugasan.enum';
+import { useNavigate } from 'react-router-dom';
 
 interface LeaderInterface{
   fullname:string,
@@ -37,7 +39,9 @@ interface PenugasanInterface {
 }
   
 function Penugasan() {
+  const navigation = useNavigate();
   const [penugasan, setPenugasan] = useState<PenugasanInterface[]>([])
+  
 
   
   const getPenugasan = async () => {
@@ -54,11 +58,6 @@ function Penugasan() {
     getPenugasan();
   }, [])
   const columns = [
-    // {
-    //   title: 'Nomor Penugasan',
-    //   dataIndex: 'id',
-    //   key: 'id',
-    // },
     {
       title: 'Nama Kegiatan',
       dataIndex: 'nama_kegiatan',
@@ -77,17 +76,52 @@ function Penugasan() {
       render: (data: any)=>moment(data.start_date).format('DD/MM/YYYY hh:mm'),
     },
     {
-      title: 'Tanggal Selsai',
-      dataIndex: 'surat',
-      key: 'surat',
-      render: (data: any)=>moment(data.end_date).format('DD/MM/YYYY hh:mm'),
-    },
-    {
       title: 'Jumlah Personel',
       dataIndex: 'personels',
       key: 'personels',
       render: (data: any) => `${data.length} Personels`  
     },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (data:number) => {
+        if (data) {
+          console.log(data,'case');
+          
+          switch (data) {
+            case PENUGASAN.DISPATCHED:
+              return <Tag color='blue'>DIBUAT</Tag>
+            case PENUGASAN.ONGOING:
+              return <Tag color='red'>BERLANGSUNG</Tag>
+            case PENUGASAN.DONE:
+              return <Tag color='green'>SELESAI</Tag>
+            default:
+              return <Tag color='red'>BELUM</Tag>
+          }
+        } else {
+          return <Tag color='red'>BELUM DITUGASKAN</Tag>
+        }
+      }
+    },
+    {
+      title: 'Aksi',
+      dataIndex: 'id',
+      key: 'action',
+      render: (data: string | number) => {
+        return (
+          <Space direction='vertical'>
+            {
+              <Button block danger onClick={() => navigation(`/penugasan/detail/${data}`)}>
+              Lihat Penugasan
+              </Button> 
+            }
+
+          </Space>
+        );
+      }
+    },
+    
   ]
   return (
     <Space direction="vertical" style={{width: '100%'}}>
