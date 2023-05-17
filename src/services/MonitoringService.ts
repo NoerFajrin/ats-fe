@@ -16,6 +16,9 @@ const MonitoringService = {
     getStatisticHealth : async () => {
         return await client.get(`/statistic/anomali`)
     },
+    getStatisticHealthbyTime : async() => {
+        return await client.get(`/statistic/anomali?many=true`)
+    },
 }
 
 export default MonitoringService

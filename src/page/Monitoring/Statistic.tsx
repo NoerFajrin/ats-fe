@@ -1,11 +1,11 @@
 import { Card, Col, Row, Space, Typography, Statistic as Stat, Table, notification } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { PieChart, Pie, Cell, Label } from 'recharts';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import MonitoringService from '../../services/MonitoringService';
 import moment from 'moment';
 import { ColumnsType } from 'antd/es/table';
 import PC from './component/PieChart'
+import LC from './component/LineChart'
 import SocketHelper from '../../helpers/socket';
 import { HMPallete } from '../../helpers/pallete';
 
@@ -23,6 +23,14 @@ interface DataChart {
   label: string;
   color: string;
 }
+
+interface LineChartData {
+  timestamp: string;
+  bahaya: number;
+  waspada: number;
+  aman: number;
+}
+
 interface CardProps {
   alarm: AlarmInterface;
 }
@@ -51,13 +59,15 @@ const Statistic = () => {
   const [dataChartHr, setDataChartHr] = useState<DataChart[]>([]);
   const [dataChartTemp, setDataChartTemp] = useState<DataChart[]>([]);
   const [alarms, setAlarms] = useState<AlarmInterface[]>([]);
+  const [sensorDataHR, setSensorDataHR] = useState<LineChartData[]>([]);
+  const [sensorDataSpo2, setSensorDataSpo2] = useState<LineChartData[]>([]);
+  const [sensorDataTemp, setSensorDataTemp] = useState<LineChartData[]>([]);
 
   const getPenugasanOnGoing = async () => {
     try {
       const res = await MonitoringService.getPenugasanOnGoing();
       const data = res.data.data
-      console.log(data)
-      setDetailPenugasan(data)
+      setDetailPenugasan(data);
 
     } catch (error) {
       console.error(error);
@@ -79,7 +89,6 @@ const Statistic = () => {
     try {
       const res = await MonitoringService.getStatisticPersonels();
       const data = res.data.data as statisticPersonelInterface
-      console.log(data)
       setStatisticPersonels(data)
 
     } catch (error) {
@@ -87,7 +96,39 @@ const Statistic = () => {
 
     }
   }
+  const getLineChartData = async () => {
+    try {
+      const res = await MonitoringService.getStatisticHealthbyTime();
+      const sortedData = res.data.data.slice(-5).reverse();
   
+      const formattedData = sortedData.map((item: any) => ({
+        timestamp: moment(item.date).format('HH:mm'),
+        bahaya: item.heart_rate.bahaya,
+        waspada: item.heart_rate.waspada,
+        aman: item.heart_rate.aman,
+      }));
+      setSensorDataHR(formattedData);
+  
+      const formattedDataSpo2 = sortedData.map((item: any) => ({
+        timestamp: moment(item.date).format('HH:mm'),
+        bahaya: item.spo2.bahaya,
+        waspada: item.spo2.waspada,
+        aman: item.spo2.aman,
+      }));
+      setSensorDataSpo2(formattedDataSpo2);
+  
+      const formattedDataTemp = sortedData.map((item: any) => ({
+        timestamp: moment(item.date).format('HH:mm'),
+        bahaya: item.temperature.bahaya,
+        waspada: item.temperature.waspada,
+        aman: item.temperature.aman,
+      }));
+      setSensorDataTemp(formattedDataTemp);
+    } catch (error) {
+      console.error(error);
+      // Handle the error accordingly
+    }
+  }
   const getPieChartData = async () => {
     interface AnomaliResponse {
       aman: number;
@@ -97,7 +138,6 @@ const Statistic = () => {
     try {
       const res = await MonitoringService.getStatisticHealth();
       const { heart_rate, spo2, temperature } = res.data.data;
-      console.log(heart_rate);
       const FormattedHR: DataChart[] = Object.keys(heart_rate).map((key: string) => ({
         name: key,
         value: heart_rate[key],
@@ -123,14 +163,6 @@ const Statistic = () => {
       console.error(error);
     }
   };
-
-
-  // const alarms: AlarmInterface[] = [
-  //   { id: 1, fullname: "Padlan Alqinsi", message: "HR diatas rata-rata", timestamp: "19:30" },
-  //   { id: 2, fullname: "Alvin Mustafa", message: "HR diatas rata-rata", timestamp: "19:30" },
-  //   { id: 3, fullname: "Eric Ten Hag", message: "HR diatas rata-rata", timestamp: "19:30" },
-  //   // Add more alarms here...
-  // ];
 
   const columns: ColumnsType<detailPenugasanInterface> = [
     {
@@ -163,54 +195,9 @@ const Statistic = () => {
     }
   ];
 
-  interface DataChartInterface {
-    name: string;
-    value: number;
-    label: string;
-    color: string;
-  }
-  const sensorDataHR = [
-    { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
-    { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
-    { timestamp: '02:00', danger: 2, warning: 2, safe: 19 },
-    { timestamp: '03:00', danger: 1, warning: 3, safe: 19 },
-    { timestamp: '04:00', danger: 3, warning: 1, safe: 19 },
-    { timestamp: '05:00', danger: 2, warning: 2, safe: 18 },
-    { timestamp: '06:00', danger: 4, warning: 1, safe: 17 },
-    { timestamp: '07:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '08:00', danger: 3, warning: 1, safe: 18 },
-    { timestamp: '09:00', danger: 1, warning: 2, safe: 19 },
-    { timestamp: '10:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
-  ];
-  const sensorDataSP = [
-    { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
-    { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
-    { timestamp: '02:00', danger: 2, warning: 2, safe: 19 },
-    { timestamp: '03:00', danger: 1, warning: 3, safe: 19 },
-    { timestamp: '04:00', danger: 3, warning: 1, safe: 19 },
-    { timestamp: '05:00', danger: 2, warning: 2, safe: 18 },
-    { timestamp: '06:00', danger: 4, warning: 1, safe: 17 },
-    { timestamp: '07:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '08:00', danger: 3, warning: 1, safe: 18 },
-    { timestamp: '09:00', danger: 1, warning: 2, safe: 19 },
-    { timestamp: '10:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
-  ];
-  const sensorDataT = [
-    { timestamp: '00:00', danger: 3, warning: 2, safe: 18 },
-    { timestamp: '01:00', danger: 4, warning: 1, safe: 18 },
-    { timestamp: '02:00', danger: 2, warning: 2, safe: 19 },
-    { timestamp: '03:00', danger: 1, warning: 3, safe: 19 },
-    { timestamp: '04:00', danger: 3, warning: 1, safe: 19 },
-    { timestamp: '05:00', danger: 2, warning: 2, safe: 18 },
-    { timestamp: '06:00', danger: 4, warning: 1, safe: 17 },
-    { timestamp: '07:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '08:00', danger: 3, warning: 1, safe: 18 },
-    { timestamp: '09:00', danger: 1, warning: 2, safe: 19 },
-    { timestamp: '10:00', danger: 2, warning: 3, safe: 17 },
-    { timestamp: '11:00', danger: 4, warning: 1, safe: 18 },
-  ];
+
+
+
 
   const handleAlarm = (payload: any) => {
     try {
@@ -231,6 +218,7 @@ const Statistic = () => {
     getStatisticPersonels();
     getPieChartData();
     getAlarm();
+    getLineChartData();
   }, [])
 
   useEffect(() => {
@@ -316,48 +304,22 @@ const Statistic = () => {
 
               <Typography.Title level={4}>Heart Rate</Typography.Title>
               <PC data={dataChartHr} size={320} />
-              <LineChart width={400} height={400} data={sensorDataHR}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-              </LineChart>
+              <LC data={sensorDataHR} size={400}/>
             </Space>
           </Col>
           <Col span={8}>
             <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Title level={4}>SpO2</Typography.Title>
               <PC data={dataChartsp} size={320} />
-              <LineChart width={400} height={400} data={sensorDataSP}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-              </LineChart>
+              <LC data={sensorDataSpo2} size={400}/>
+              
             </Space>
           </Col>
           <Col span={8}>
             <Space direction='vertical' style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Title level={4}>Temperature</Typography.Title>
               <PC data={dataChartTemp} size={320} />
-              <LineChart width={400} height={400} data={sensorDataT}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="danger" stroke="#FF4136" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="warning" stroke="#FF851B" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="safe" stroke="#2ECC40" activeDot={{ r: 8 }} />
-              </LineChart>
+              <LC data={sensorDataTemp} size={400}/>
             </Space>
           </Col>
         </Row>
