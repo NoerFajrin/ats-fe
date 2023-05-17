@@ -53,7 +53,7 @@ interface statisticPersonelInterface {
 }
 
 const Statistic = () => {
-  const [detailPenugasan, setDetailPenugasan] = useState<detailPenugasanInterface | null>(null)
+  const [detailPenugasan, setDetailPenugasan] = useState<detailPenugasanInterface[]>([])
   const [statisticPersonels, setStatisticPersonels] = useState<statisticPersonelInterface | null>(null)
   const [dataChartsp, setDataChartsp] = useState<DataChart[]>([]);
   const [dataChartHr, setDataChartHr] = useState<DataChart[]>([]);
