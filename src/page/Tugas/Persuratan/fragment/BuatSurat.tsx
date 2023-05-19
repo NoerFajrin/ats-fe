@@ -23,7 +23,7 @@ const SUMBER_SURAT = [
 ]
 
 
-function BuatSurat() {
+function BuatSurat({handleChange}: {handleChange: Function}) {
   const [componentSize, setComponentSize] = useState<SizeType | 'default'>('default');
   const [api, contextHolder] = notification.useNotification();
   const [busy, setBusy] = useState<boolean>(false)
@@ -53,7 +53,8 @@ function BuatSurat() {
       }
       const res = await SuratServices.CreateSurat(formData)
       openNotification('topRight')
-      setTimeout(() => navigate('/penugasan'), 3000)
+      handleChange("2")
+      setTimeout(() => navigate('/surat-tugas'), 3000)
 
     } catch (error) {
       console.error(error);
