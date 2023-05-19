@@ -51,15 +51,16 @@ const Dashboard = () => {
         const isExist = personnels.findIndex((p) => p.sensor_id)
         console.log(personnel.user, currentList, isExist);
 
-        if (isExist !== -1) {
-            const newList = [...personnels,personnel]
+        if (isExist === -1) {
+            const newList = [...personnels, personnel]
+
             setPersonnels(newList)
+        } else {
+            const newList = [...currentList]
+            newList[isExist] = personnel
             if (activePersonel?.sensor_id === personnel.sensor_id) {
                 setActivePersonel(personnel)
             }
-        } else {
-            const newList = currentList 
-            newList[isExist] = personnel
             setPersonnels(newList)
         }
 
