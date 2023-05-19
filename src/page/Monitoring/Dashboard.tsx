@@ -6,7 +6,7 @@ import SocketHelper from '../../helpers/socket'
 import DetailPersonnelModal from './component/DetailPersonnelModal'
 import { Card, FloatButton, Space, Tooltip, Typography } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
-import {BarChartOutlined} from '@ant-design/icons'
+import { BarChartOutlined } from '@ant-design/icons'
 
 interface PersonelInterface {
     user: string;
@@ -29,7 +29,7 @@ const Dashboard = () => {
         const socket = SocketHelper.createConnection
         socket.on('connect', () => console.log('oit'))
         socket.on('oc-health-channel', (payload) => {
-            console.log(payload, 'msg arrived');
+            // console.log(payload, 'msg arrived');
             const personnelFormat: PersonelInterface = {
                 user: payload.fullname,
                 position: [payload.lat, payload.lon],
@@ -41,22 +41,28 @@ const Dashboard = () => {
                 },
                 nama_penugasan: payload.nama_penugasan
             }
+
             handleNewConnection(personnelFormat)
         })
     }, [])
 
     const handleNewConnection = (personnel: PersonelInterface) => {
         let currentList = [...personnels]
-        const isExist = currentList.findIndex((p) => p.sensor_id)
-        if (isExist === -1) {
-            currentList = [...currentList, personnel]
-        } else {
-            currentList[isExist] = personnel
+        const isExist = personnels.findIndex((p) => p.sensor_id)
+        console.log(personnel.user, currentList, isExist);
+
+        if (isExist !== -1) {
+            const newList = [...personnels,personnel]
+            setPersonnels(newList)
             if (activePersonel?.sensor_id === personnel.sensor_id) {
                 setActivePersonel(personnel)
             }
+        } else {
+            const newList = currentList 
+            newList[isExist] = personnel
+            setPersonnels(newList)
         }
-        setPersonnels(currentList)
+
     }
 
     const Personnel = ({ personnel }: { personnel: PersonelInterface }) => {
@@ -105,7 +111,7 @@ const Dashboard = () => {
                 </Tooltip>
                 <Tooltip title={'Statistic'} placement={'left'}>
                     <Link to={'/statistic'}>
-                        <FloatButton icon={<BarChartOutlined/>}/>
+                        <FloatButton icon={<BarChartOutlined />} />
                     </Link>
                 </Tooltip>
             </FloatButton.Group>
