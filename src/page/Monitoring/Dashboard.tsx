@@ -62,13 +62,15 @@ const Dashboard = () => {
         //     newList[isExist] = personnel
         //     setPersonnels(newList)
         // }
-
+        
+        
         const isArE = arrayTemp.findIndex((p) => p.user === personnel.user)
         if (isArE === -1) {
             arrayTemp = [...arrayTemp, personnel]
         } else {
             arrayTemp[isArE] = personnel
         }
+        setPersonnels(arrayTemp)
         
         // dispatch(updateMarker(personnel))
 
@@ -106,7 +108,7 @@ const Dashboard = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {arrayTemp.map((person) => <Personnel key={person.sensor_id} personnel={person} />)}
+                {personnels.map((person) => <Personnel key={person.sensor_id} personnel={person} />)}
             </MapContainer>
             {
                 activePersonel &&
