@@ -99,7 +99,7 @@ const Statistic = () => {
   const getLineChartData = async () => {
     try {
       const res = await MonitoringService.getStatisticHealthbyTime();
-      const sortedData = res.data.data.slice(-5).reverse();
+      const sortedData = res.data.data.slice(-5);
   
       const formattedData = sortedData.map((item: any) => ({
         timestamp: moment(item.date).format('HH:mm'),
