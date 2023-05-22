@@ -197,8 +197,7 @@ const Statistic = () => {
 
   const handleAlarm = (payload: any) => {
     try {
-      const alarm = JSON.parse(payload) as AlarmInterface;
-      console.log(alarm, 'alarm');
+      const alarm = payload as AlarmInterface;
       setAlarms((prevAlarms) => [...prevAlarms, alarm]);
       notification.open({
         message: `New Alarm`,
