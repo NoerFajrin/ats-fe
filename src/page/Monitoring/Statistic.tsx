@@ -195,10 +195,6 @@ const Statistic = () => {
     }
   ];
 
-
-
-
-
   const handleAlarm = (payload: any) => {
     try {
       const alarm = JSON.parse(payload) as AlarmInterface;
@@ -237,7 +233,7 @@ const Statistic = () => {
               Alarm
             </Typography.Title>
             {
-              [...alarms].reverse().map((alarm) => (
+              [...alarms].map((alarm) => (
                 <Card style={{ width: '100%' }}>
                   <Space direction='horizontal' style={{ justifyContent: 'space-between', width: '100%' }}>
                     <Typography.Text>{alarm.fullname}</Typography.Text>
