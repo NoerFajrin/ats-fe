@@ -7,6 +7,8 @@ import DetailPersonnelModal from './component/DetailPersonnelModal'
 import { Card, FloatButton, Space, Tooltip, Typography } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { BarChartOutlined } from '@ant-design/icons'
+import { useAppDispatch, useAppSelector } from '../../redux/Hook'
+import { resetMarker, updateMarker } from '../../redux/Slice/DashboardSlice'
 
 interface PersonelInterface {
     user: string;
@@ -19,7 +21,10 @@ interface PersonelInterface {
     }
     nama_penugasan: string
 }
+let arrayTemp: PersonelInterface[] = []
 const Dashboard = () => {
+    const MARKER_LIST = useAppSelector(state => state.dashboard.marker)
+    const dispatch = useAppDispatch() 
     const navigation = useNavigate()
     // const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
     const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
@@ -47,24 +52,34 @@ const Dashboard = () => {
     }, [])
 
     const handleNewConnection = (personnel: PersonelInterface) => {
-        let currentList = [...personnels]
-        const isExist = personnels.findIndex((p) => p.sensor_id)
-        console.log(personnel.user, currentList, isExist);
+        // const isExist = personnels.findIndex((p) => p.user === personnel.user)
+        // console.log(isExist, personnel.user);
 
-        if (isExist === -1) {
-            const newList = [...personnels, personnel]
+        // if (isExist === -1) {
+        //     setPersonnels([...personnels, personnel])
+        // } else {
+        //     if (activePersonel?.sensor_id === personnel.sensor_id) {
+        //         setActivePersonel(personnel)
+        //     }
+        //     const newList = [...personnels]
+        //     newList[isExist] = personnel
+        //     setPersonnels(newList)
+        // }
 
-            setPersonnels(newList)
+        const isArE = arrayTemp.findIndex((p) => p.user === personnel.user)
+        if (isArE === -1) {
+            arrayTemp = [...arrayTemp, personnel]
         } else {
-            const newList = [...currentList]
-            newList[isExist] = personnel
-            if (activePersonel?.sensor_id === personnel.sensor_id) {
-                setActivePersonel(personnel)
-            }
-            setPersonnels(newList)
+            arrayTemp[isArE] = personnel
         }
+        
+        // dispatch(updateMarker(personnel))
 
     }
+
+    useEffect(()=>{
+        dispatch(resetMarker())
+    },[])
 
     const Personnel = ({ personnel }: { personnel: PersonelInterface }) => {
         return (
@@ -98,7 +113,7 @@ const Dashboard = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {personnels.map((person) => <Personnel key={person.sensor_id} personnel={person} />)}
+                {arrayTemp.map((person) => <Personnel key={person.sensor_id} personnel={person} />)}
             </MapContainer>
             {
                 activePersonel &&
