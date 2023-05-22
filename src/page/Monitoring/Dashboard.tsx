@@ -8,7 +8,6 @@ import { Card, FloatButton, Space, Tooltip, Typography } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import { BarChartOutlined } from '@ant-design/icons'
 import { useAppDispatch, useAppSelector } from '../../redux/Hook'
-import { resetMarker, updateMarker } from '../../redux/Slice/DashboardSlice'
 
 interface PersonelInterface {
     user: string;
@@ -23,8 +22,6 @@ interface PersonelInterface {
 }
 let arrayTemp: PersonelInterface[] = []
 const Dashboard = () => {
-    const MARKER_LIST = useAppSelector(state => state.dashboard.marker)
-    const dispatch = useAppDispatch() 
     const navigation = useNavigate()
     // const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
     const [personnels, setPersonnels] = useState<PersonelInterface[]>([])
@@ -76,10 +73,6 @@ const Dashboard = () => {
         // dispatch(updateMarker(personnel))
 
     }
-
-    useEffect(()=>{
-        dispatch(resetMarker())
-    },[])
 
     const Personnel = ({ personnel }: { personnel: PersonelInterface }) => {
         return (
